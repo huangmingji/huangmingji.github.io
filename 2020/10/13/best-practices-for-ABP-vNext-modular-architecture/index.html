@@ -1,0 +1,288 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"><title>ABP vnext模块化架构的最佳实践的实现 | 我与春风皆过客，你携秋水揽星河</title><meta name="author" content="黄明基"><meta name="copyright" content="黄明基"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="在上一篇文章《手把手教你用Abp vnext构建API接口服务》中，我们用ABP vnext实现了WebAPI接口服务，但是并非ABP模块化架构的最佳实践。我本身也在学习ABP，我认为ABP新手应该从最佳实践开始学习，可以少走很多弯路，所以写了这篇最佳实践来做个总结，同时给其他朋友们提供一点参考。 什么是模块化架构的最佳实践ABP是一个包含许多nuget包的模块化框架。它提供了一个完整的基础架构来">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ABP vnext模块化架构的最佳实践的实现">
+<meta property="og:url" content="https://huangmingji.github.io/2020/10/13/best-practices-for-ABP-vNext-modular-architecture/index.html">
+<meta property="og:site_name" content="我与春风皆过客，你携秋水揽星河">
+<meta property="og:description" content="在上一篇文章《手把手教你用Abp vnext构建API接口服务》中，我们用ABP vnext实现了WebAPI接口服务，但是并非ABP模块化架构的最佳实践。我本身也在学习ABP，我认为ABP新手应该从最佳实践开始学习，可以少走很多弯路，所以写了这篇最佳实践来做个总结，同时给其他朋友们提供一点参考。 什么是模块化架构的最佳实践ABP是一个包含许多nuget包的模块化框架。它提供了一个完整的基础架构来">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://huangmingji.github.io/img/favicon.jpg">
+<meta property="article:published_time" content="2020-10-13T14:55:00.000Z">
+<meta property="article:modified_time" content="2023-02-12T15:35:57.907Z">
+<meta property="article:author" content="黄明基">
+<meta property="article:tag" content="ASP.NET Core">
+<meta property="article:tag" content="ABP vNext">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://huangmingji.github.io/img/favicon.jpg"><link rel="shortcut icon" href="/img/favicon.jpg"><link rel="canonical" href="https://huangmingji.github.io/2020/10/13/best-practices-for-ABP-vNext-modular-architecture/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'ABP vnext模块化架构的最佳实践的实现',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-02-12 23:35:57'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = url => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      link.onload = () => resolve()
+      link.onerror = () => reject()
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 5.4.2"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/favicon.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">2</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">2</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/img/final.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="我与春风皆过客，你携秋水揽星河"><span class="site-name">我与春风皆过客，你携秋水揽星河</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">ABP vnext模块化架构的最佳实践的实现</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2020-10-13T14:55:00.000Z" title="发表于 2020-10-13 22:55:00">2020-10-13</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-02-12T15:35:57.907Z" title="更新于 2023-02-12 23:35:57">2023-02-12</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="ABP vnext模块化架构的最佳实践的实现"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>在上一篇文章<a target="_blank" rel="noopener" href="https://www.cnblogs.com/229015504/p/12511917.html">《手把手教你用Abp vnext构建API接口服务》</a>中，我们用ABP vnext实现了WebAPI接口服务，但是并非ABP模块化架构的最佳实践。我本身也在学习ABP，我认为ABP新手应该从最佳实践开始学习，可以少走很多弯路，所以写了这篇最佳实践来做个总结，同时给其他朋友们提供一点参考。</p>
+<h2 id="什么是模块化架构的最佳实践"><a href="#什么是模块化架构的最佳实践" class="headerlink" title="什么是模块化架构的最佳实践"></a>什么是模块化架构的最佳实践</h2><p>ABP是一个包含许多nuget包的模块化框架。它提供了一个完整的基础架构来开发你自己的具有实体、服务、数据库集成、API、 UI组件等等功能的应用程序模块。<br>模块化架构的最佳实践就是按功能的划分创建相应的模块实现的服务，必要时可以把模块发布到nuget，由其他模块安装组合成新的服务或单体应用。这样就可以复用现有的模块功能，快速的交付产品，告别996。</p>
+<h2 id="模块化架构的最佳实践说明"><a href="#模块化架构的最佳实践说明" class="headerlink" title="模块化架构的最佳实践说明"></a>模块化架构的最佳实践说明</h2><p>这部分内容全部来自于<a target="_blank" rel="noopener" href="https://docs.abp.io/zh-Hans/abp/latest/Best-Practices/Module-Architecture">模块化架构最佳实践 &amp; 约定</a>，有兴趣的朋友可以去官方文档查看。如果已经很熟悉ABP分层了，可以直接阅读第三部分。</p>
+<h3 id="解决方案结构"><a href="#解决方案结构" class="headerlink" title="解决方案结构"></a>解决方案结构</h3><ol>
+<li>为每个模块创建一个单独的解决方案。将解决方案命名为CompanyName.ModuleName。  </li>
+<li>一个模块做为分层项目开发，因为它有几个包(项目)是相互关联的。每个包都有自己的模块定义文件,并显式声明所依赖的包&#x2F;模块的依赖关系。</li>
+</ol>
+<h3 id="模块分层和包之间的关系"><a href="#模块分层和包之间的关系" class="headerlink" title="模块分层和包之间的关系"></a>模块分层和包之间的关系</h3><p>下面展示了一个分层良好的模块中的包以及它们之间的依赖关系:<br><img src="/2020/10/13/best-practices-for-ABP-vNext-modular-architecture/47875-20201013224807013-1750953152.jpg" alt="47875-20201013224807013-1750953152.jpg">  </p>
+<h4 id="领域层"><a href="#领域层" class="headerlink" title="领域层"></a>领域层</h4><p>将领域层划分为两个项目：  </p>
+<ol>
+<li>Domain.Shared 包(项目) 命名为CompanyName.ModuleName.Domain.Shared,包含常量,枚举和其他类型，它不能包含实体、存储库、域服务或任何其他业务对象。可以安全地与模块中的所有层使用。此包也可以与第三方客户端使用。  </li>
+<li>Domain 包(项目) 命名为CompanyName.ModuleName.Domain，包含实体、仓储接口、领域服务接口及其实现和其他领域对象。Domain 包依赖于 Domain.Shared 包。</li>
+</ol>
+<h4 id="应用服务层"><a href="#应用服务层" class="headerlink" title="应用服务层"></a>应用服务层</h4><p>将应用服务层划分为两个项目:  </p>
+<ol>
+<li>Application.Contracts 包(项目) 命名为CompanyName.ModuleName.Application.Contracts,包含应用服务接口和相关的数据传输对象(DTO)。   Application contract 包依赖于 Domain.Shared 包。  </li>
+<li>Application 包(项目)命名为CompanyName.ModuleName.Application,包含应用服务实现。Application 包依赖于 Domain 包和 Application.Contracts 包。</li>
+</ol>
+<h4 id="基础设施层"><a href="#基础设施层" class="headerlink" title="基础设施层"></a>基础设施层</h4><ol>
+<li>为每个orm&#x2F;数据库集成创建一个独立的集成包，比如Entity Framework Core 和 MongoDB。例如，创建一个抽象Entity Framework Core集成的CompanyName.ModuleName.EntityFrameworkCore 包。ORM 集成包依赖于 Domain 包。不推荐依赖于orm&#x2F;数据库集成包中的其他层.  </li>
+<li>为每个主要的库创建一个独立的集成包, 在不影响其他包的情况下可以被另一个库替换.</li>
+</ol>
+<h4 id="HTTP-层"><a href="#HTTP-层" class="headerlink" title="HTTP 层"></a>HTTP 层</h4><ol>
+<li>创建命名为CompanyName.ModuleName.HttpApi的HTTP API包，为模块开发REST风格的HTTP API。<ul>
+<li>HTTP API 包只依赖于 Application.Contracts 包。不要依赖 Application 包。</li>
+<li>为每个应用服务创建一个Controller (通常通过实现其接口)。这些控制器使用应用服务接口来委托操作。它根据需要配置路由，HTTP方法和其他与Web相关的东西。</li>
+</ul>
+</li>
+<li>创建一个为HTTP API包提供客户端服务的HTTP API Client包，它的命名为Companyname.ModuleName.HttpApi.Client。这些客户端服务将应用服务接口实现远程端点的客户端。<ul>
+<li>HTTP API Client包仅依赖于 Application.Contracts包。</li>
+<li>推荐使用ABP框架提供的动态代理HTTP C＃客户端的功能。</li>
+</ul>
+</li>
+</ol>
+<h4 id="Web-层"><a href="#Web-层" class="headerlink" title="Web 层"></a>Web 层</h4><p>创建命名为CompanyName.ModuleName.Web的Web包。 包含页面、视图、脚本、样式、图像和其他UI组件。Web包仅依赖于HttpApi包。</p>
+<h2 id="实现模块化架构的最佳实践"><a href="#实现模块化架构的最佳实践" class="headerlink" title="实现模块化架构的最佳实践"></a>实现模块化架构的最佳实践</h2><p>开发环境：Mac Visual Studio Code<br>SDK：dotnet core 3.1<br>数据库：PostgreSQL</p>
+<h3 id="创建项目文件夹，然后进入改文件夹的命令目录执行以下命令创建项目"><a href="#创建项目文件夹，然后进入改文件夹的命令目录执行以下命令创建项目" class="headerlink" title="创建项目文件夹，然后进入改文件夹的命令目录执行以下命令创建项目"></a>创建项目文件夹，然后进入改文件夹的命令目录执行以下命令创建项目</h3><p>在上一篇文章中引入的是Volo.Abp.Identity的包，现在改用Volo.Abp.DDD的包，更简洁。  </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line">/**创建解决方案**/</span><br><span class="line">dotnet new sln</span><br><span class="line">/**创建模块分层**/</span><br><span class="line">dotnet new classlib -o src/Lemon.Account.Domain.Shared</span><br><span class="line">dotnet new classlib -o src/Lemon.Account.Domain</span><br><span class="line">dotnet new classlib -o src/Lemon.Account.EntityFrameworkCore</span><br><span class="line">dotnet new classlib -o src/Lemon.Account.EntityFrameworkCore.DbMigrations</span><br><span class="line">dotnet new classlib -o src/Lemon.Account.Application.Contracts</span><br><span class="line">dotnet new classlib -o src/Lemon.Account.Application</span><br><span class="line">dotnet new classlib -o src/Lemon.Account.HttpApi</span><br><span class="line">dotnet new classlib -o src/Lemon.Account.HttpApi.Client</span><br><span class="line">dotnet new web -o src/Lemon.Account.Host</span><br><span class="line"></span><br><span class="line">/**加入解决方案**/</span><br><span class="line">dotnet sln Lemon.Account.sln add src/Lemon.Account.Domain.Shared</span><br><span class="line">dotnet sln Lemon.Account.sln add src/Lemon.Account.Domain</span><br><span class="line">dotnet sln Lemon.Account.sln add src/Lemon.Account.EntityFrameworkCore</span><br><span class="line">dotnet sln Lemon.Account.sln add src/Lemon.Account.EntityFrameworkCore.DbMigrations</span><br><span class="line">dotnet sln Lemon.Account.sln add src/Lemon.Account.Application.Contracts</span><br><span class="line">dotnet sln Lemon.Account.sln add src/Lemon.Account.Application</span><br><span class="line">dotnet sln Lemon.Account.sln add src/Lemon.Account.HttpApi</span><br><span class="line">dotnet sln Lemon.Account.sln add src/Lemon.Account.HttpApi.Client</span><br><span class="line">dotnet sln Lemon.Account.sln add src/Lemon.Account.Host</span><br><span class="line"></span><br><span class="line">/**分层间互相引用**/</span><br><span class="line">dotnet add src/Lemon.Account.Domain/Lemon.Account.Domain.csproj reference src/Lemon.Account.Domain.Shared/Lemon.Account.Domain.Shared.csproj</span><br><span class="line">dotnet add src/Lemon.Account.EntityFrameworkCore/Lemon.Account.EntityFrameworkCore.csproj reference src/Lemon.Account.Domain/Lemon.Account.Domain.csproj</span><br><span class="line">dotnet add src/Lemon.Account.EntityFrameworkCore.DbMigrations/Lemon.Account.EntityFrameworkCore.DbMigrations.csproj reference src/Lemon.Account.EntityFrameworkCore/Lemon.Account.EntityFrameworkCore.csproj</span><br><span class="line">dotnet add src/Lemon.Account.Application/Lemon.Account.Application.csproj reference src/Lemon.Account.Application.Contracts/Lemon.Account.Application.Contracts.csproj</span><br><span class="line">dotnet add src/Lemon.Account.Application/Lemon.Account.Application.csproj reference src/Lemon.Account.Domain/Lemon.Account.Domain.csproj</span><br><span class="line">dotnet add src/Lemon.Account.HttpApi/Lemon.Account.HttpApi.csproj reference src/Lemon.Account.Application.Contracts/Lemon.Account.Application.Contracts.csproj</span><br><span class="line">dotnet add src/Lemon.Account.Host/Lemon.Account.Host.csproj reference src/Lemon.Account.EntityFrameworkCore.DbMigrations/Lemon.Account.EntityFrameworkCore.DbMigrations.csproj</span><br><span class="line">dotnet add src/Lemon.Account.Host/Lemon.Account.Host.csproj reference src/Lemon.Account.Application/Lemon.Account.Application.csproj</span><br><span class="line">dotnet add src/Lemon.Account.Host/Lemon.Account.Host.csproj reference src/Lemon.Account.HttpApi/Lemon.Account.HttpApi.csproj</span><br><span class="line"></span><br><span class="line">/**添加nuget依赖包**/</span><br><span class="line">dotnet add src/Lemon.Account.Domain.Shared/Lemon.Account.Domain.Shared.csproj package Volo.Abp.Validation</span><br><span class="line">dotnet add src/Lemon.Account.Domain/Lemon.Account.Domain.csproj package Volo.Abp.Ddd.Domain</span><br><span class="line">dotnet add src/Lemon.Account.Domain/Lemon.Account.Domain.csproj package Lemon.Common</span><br><span class="line"></span><br><span class="line">dotnet add src/Lemon.Account.EntityFrameworkCore/Lemon.Account.EntityFrameworkCore.csproj package Volo.Abp.EntityFrameworkCore</span><br><span class="line">dotnet add src/Lemon.Account.EntityFrameworkCore/Lemon.Account.EntityFrameworkCore.csproj package Volo.Abp.EntityFrameworkCore.PostgreSql</span><br><span class="line"></span><br><span class="line">dotnet add src/Lemon.Account.EntityFrameworkCore.DbMigrations/Lemon.Account.EntityFrameworkCore.DbMigrations.csproj package Volo.Abp.EntityFrameworkCore</span><br><span class="line">dotnet add src/Lemon.Account.EntityFrameworkCore.DbMigrations/Lemon.Account.EntityFrameworkCore.DbMigrations.csproj package Volo.Abp.EntityFrameworkCore.PostgreSql</span><br><span class="line">dotnet add src/Lemon.Account.EntityFrameworkCore.DbMigrations/Lemon.Account.EntityFrameworkCore.DbMigrations.csproj package Microsoft.EntityFrameworkCore.Design</span><br><span class="line"></span><br><span class="line">dotnet add src/Lemon.Account.Application.Contracts/Lemon.Account.Application.Contracts.csproj package IdentityModel</span><br><span class="line">dotnet add src/Lemon.Account.Application.Contracts/Lemon.Account.Application.Contracts.csproj package Volo.Abp.Ddd.Application.Contracts</span><br><span class="line"></span><br><span class="line">dotnet add src/Lemon.Account.Application/Lemon.Account.Application.csproj package Volo.Abp.Ddd.Application</span><br><span class="line">dotnet add src/Lemon.Account.Application/Lemon.Account.Application.csproj package Volo.Abp.AutoMapper</span><br><span class="line"></span><br><span class="line">dotnet add src/Lemon.Account.HttpApi/Lemon.Account.HttpApi.csproj package Volo.Abp.AspNetCore.Mvc</span><br><span class="line"></span><br><span class="line">dotnet add src/Lemon.Account.Host/Lemon.Account.Host.csproj package Volo.Abp.AspNetCore.Mvc</span><br><span class="line">dotnet add src/Lemon.Account.Host/Lemon.Account.Host.csproj package Swashbuckle.AspNetCore</span><br><span class="line">dotnet add src/Lemon.Account.Host/Lemon.Account.Host.csproj package Microsoft.AspNetCore.DataProtection.StackExchangeRedis</span><br><span class="line">dotnet add src/Lemon.Account.Host/Lemon.Account.Host.csproj package Microsoft.Extensions.Caching.StackExchangeRedis</span><br><span class="line">dotnet add src/Lemon.Account.Host/Lemon.Account.Host.csproj package Serilog.AspNetCore</span><br><span class="line">dotnet add src/Lemon.Account.Host/Lemon.Account.Host.csproj package Serilog.Settings.Configuration</span><br><span class="line">dotnet add src/Lemon.Account.Host/Lemon.Account.Host.csproj package Serilog.Sinks.Async</span><br><span class="line">dotnet add src/Lemon.Account.Host/Lemon.Account.Host.csproj package Serilog.Sinks.File</span><br><span class="line">dotnet add src/Lemon.Account.Host/Lemon.Account.Host.csproj package Volo.Abp.AspNetCore.Serilog</span><br><span class="line">dotnet add src/Lemon.Account.Host/Lemon.Account.Host.csproj package Volo.Abp.Autofac</span><br><span class="line">dotnet add src/Lemon.Account.Host/Lemon.Account.Host.csproj package IdentityServer4.AccessTokenValidation</span><br><span class="line">dotnet add src/Lemon.Account.Host/Lemon.Account.Host.csproj reference src/Lemon.Account.EntityFrameworkCore.DbMigrations/Lemon.Account.EntityFrameworkCore.DbMigrations.csproj</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="实现领域层"><a href="#实现领域层" class="headerlink" title="实现领域层"></a>实现领域层</h3><p>在Domain创建实体类及其约束关联，具体代码请看UserData类，此处不再详细说明。  </p>
+<h3 id="实现基础设施层"><a href="#实现基础设施层" class="headerlink" title="实现基础设施层"></a>实现基础设施层</h3><p>在EntityFrameworkCore创建AccountDbContext类和LemonAccountDbContextModelCreatingExtensions类。请特别关注LemonAccountDbContextModelCreatingExtensions类，主要是用来定义实体在数据库表中的字段属性。</p>
+<h3 id="实现应用服务层"><a href="#实现应用服务层" class="headerlink" title="实现应用服务层"></a>实现应用服务层</h3><h3 id="实现httpapi"><a href="#实现httpapi" class="headerlink" title="实现httpapi"></a>实现httpapi</h3><h3 id="用swagger调试接口"><a href="#用swagger调试接口" class="headerlink" title="用swagger调试接口"></a>用swagger调试接口</h3><p>进入Host目录，执行命令  </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dotnet watch run</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/10/13/best-practices-for-ABP-vNext-modular-architecture/47875-20201013225018016-898726237.png" alt="47875-20201013225018016-898726237.png"><br>服务启动成功，在浏览器打开链接<a target="_blank" rel="noopener" href="http://localhost:5000/swagger/index.html%EF%BC%8C%E5%BC%80%E5%A7%8B%E8%B0%83%E8%AF%95%E8%B4%A6%E5%8F%B7%E6%B3%A8%E5%86%8C%E5%92%8C%E9%AA%8C%E8%AF%81%E6%8E%A5%E5%8F%A3%E3%80%82%E7%BB%93%E6%9E%9C%E5%A6%82%E4%B8%8B%EF%BC%9A">http://localhost:5000/swagger/index.html，开始调试账号注册和验证接口。结果如下：</a><br><img src="/2020/10/13/best-practices-for-ABP-vNext-modular-architecture/47875-20201013225053667-1525487188.png" alt="47875-20201013225053667-1525487188.png"><br><img src="/2020/10/13/best-practices-for-ABP-vNext-modular-architecture/47875-20201013225113952-742681692.png" alt="47875-20201013225113952-742681692.png"><br><img src="/2020/10/13/best-practices-for-ABP-vNext-modular-architecture/47875-20201013225125629-997911187.png" alt="47875-20201013225125629-997911187.png"><br><img src="/2020/10/13/best-practices-for-ABP-vNext-modular-architecture/47875-20201013225136227-1705708404.png" alt="47875-20201013225136227-1705708404.png"></p>
+<h2 id="模块化架构的最佳实践的好处"><a href="#模块化架构的最佳实践的好处" class="headerlink" title="模块化架构的最佳实践的好处"></a>模块化架构的最佳实践的好处</h2><p>使用模块化架构的好处有几点：</p>
+<ol>
+<li>可以方便的更换模块<br>比如我现在用的数据库是PostgreSQL，如果想要更换成MySQL，只要以EntityFrameworkCore层为基础，新增一个MySQL连接库，就可以在不改变业务逻辑的前提下快速的切换数据库。</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">dotnet new classlib -o src/Lemon.Account.EntityFrameworkCore.MySQL</span><br><span class="line">dotnet new classlib -o src/Lemon.Account.EntityFrameworkCore.MySQL.DbMigrations</span><br><span class="line">dotnet sln Lemon.Account.sln add src/Lemon.Account.EntityFrameworkCore.MySQL</span><br><span class="line">dotnet sln Lemon.Account.sln add src/Lemon.Account.EntityFrameworkCore.MySQL.DbMigrations</span><br><span class="line"></span><br><span class="line">dotnet add src/Lemon.Account.EntityFrameworkCore.MySQL/Lemon.Account.EntityFrameworkCore.MySQL.csproj reference src/Lemon.Account.Domain/Lemon.Account.Domain.csproj</span><br><span class="line">dotnet add src/Lemon.Account.EntityFrameworkCore.MySQL.DbMigrations/Lemon.Account.EntityFrameworkCore.MySQL.DbMigrations.csproj reference src/Lemon.Account.EntityFrameworkCore.MySQL/Lemon.Account.EntityFrameworkCore.MySQL.csproj</span><br><span class="line"></span><br><span class="line">dotnet add src/Lemon.Account.EntityFrameworkCore.MySQL/Lemon.Account.EntityFrameworkCore.MySQL.csproj package Volo.Abp.EntityFrameworkCore.MySQL</span><br><span class="line"></span><br><span class="line">dotnet add src/Lemon.Account.EntityFrameworkCore.MySQL.DbMigrations/Lemon.Account.EntityFrameworkCore.MySQL.DbMigrations.csproj package Microsoft.EntityFrameworkCore.Design</span><br></pre></td></tr></table></figure>
+
+<p>最后再修改ConnectionStrings default为mysql的连接，修改LemonAccountHostModule的依赖项LemonAccountEntityFrameworkCoreDbMigrationsModule为MySQL  </p>
+<ol start="2">
+<li>单体应用和微服务无缝切换</li>
+</ol>
+<p>模块开发完成后，一般当作微服务来部署；或者把模块发布到nuget，在单体应用的各个分层中引入模块，多个模块在单体应用中的应用就构成了一个完整系统服务。<br>3. 模块复用  </p>
+<p>由于模块是发布到nuget的，所以如果有新的项目需要用到相同功能的，可以直接从nuget引入安装，无需重复开发或者复制代码。  </p>
+<ol start="4">
+<li><p>自动API控制器  </p>
+</li>
+<li><p>动态 C# API 客户端</p>
+</li>
+</ol>
+<p>GiHub地址：<a target="_blank" rel="noopener" href="https://github.com/huangmingji/abp-samples">https://github.com/huangmingji/abp-samples</a></p>
+<h2 id="参考文档："><a href="#参考文档：" class="headerlink" title="参考文档："></a>参考文档：</h2><ol>
+<li>模块化：<a target="_blank" rel="noopener" href="https://docs.abp.io/zh-Hans/abp/latest/Module-Development-Basics">https://docs.abp.io/zh-Hans/abp/latest/Module-Development-Basics</a></li>
+<li>最佳实践：<a target="_blank" rel="noopener" href="https://docs.abp.io/zh-Hans/abp/latest/Best-Practices/Index">https://docs.abp.io/zh-Hans/abp/latest/Best-Practices/Index</a></li>
+<li>自动API控制器：<a target="_blank" rel="noopener" href="https://docs.abp.io/zh-Hans/abp/latest/API/Auto-API-Controllers">https://docs.abp.io/zh-Hans/abp/latest/API/Auto-API-Controllers</a></li>
+</ol>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://huangmingji.github.io">黄明基</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://huangmingji.github.io/2020/10/13/best-practices-for-ABP-vNext-modular-architecture/">https://huangmingji.github.io/2020/10/13/best-practices-for-ABP-vNext-modular-architecture/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://huangmingji.github.io" target="_blank">我与春风皆过客，你携秋水揽星河</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/ASP-NET-Core/">ASP.NET Core</a><a class="post-meta__tags" href="/tags/ABP-vNext/">ABP vNext</a></div><div class="post_share"><div class="social-share" data-image="/img/favicon.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2020/03/17/teach-you-how-to-build-API-interface-services-with-Abp-vnext/" title="手把手教你用Abp vnext构建API接口服务"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">手把手教你用Abp vnext构建API接口服务</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2020/03/17/teach-you-how-to-build-API-interface-services-with-Abp-vnext/" title="手把手教你用Abp vnext构建API接口服务"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-03-17</div><div class="title">手把手教你用Abp vnext构建API接口服务</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="gitalk-container"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/favicon.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">黄明基</div><div class="author-info__description">黄明基的博客</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">2</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">2</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/huangmingji"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E6%A8%A1%E5%9D%97%E5%8C%96%E6%9E%B6%E6%9E%84%E7%9A%84%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5"><span class="toc-number">1.</span> <span class="toc-text">什么是模块化架构的最佳实践</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A8%A1%E5%9D%97%E5%8C%96%E6%9E%B6%E6%9E%84%E7%9A%84%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5%E8%AF%B4%E6%98%8E"><span class="toc-number">2.</span> <span class="toc-text">模块化架构的最佳实践说明</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%E7%BB%93%E6%9E%84"><span class="toc-number">2.1.</span> <span class="toc-text">解决方案结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A8%A1%E5%9D%97%E5%88%86%E5%B1%82%E5%92%8C%E5%8C%85%E4%B9%8B%E9%97%B4%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="toc-number">2.2.</span> <span class="toc-text">模块分层和包之间的关系</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%A2%86%E5%9F%9F%E5%B1%82"><span class="toc-number">2.2.1.</span> <span class="toc-text">领域层</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%BA%94%E7%94%A8%E6%9C%8D%E5%8A%A1%E5%B1%82"><span class="toc-number">2.2.2.</span> <span class="toc-text">应用服务层</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD%E5%B1%82"><span class="toc-number">2.2.3.</span> <span class="toc-text">基础设施层</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#HTTP-%E5%B1%82"><span class="toc-number">2.2.4.</span> <span class="toc-text">HTTP 层</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Web-%E5%B1%82"><span class="toc-number">2.2.5.</span> <span class="toc-text">Web 层</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9E%E7%8E%B0%E6%A8%A1%E5%9D%97%E5%8C%96%E6%9E%B6%E6%9E%84%E7%9A%84%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5"><span class="toc-number">3.</span> <span class="toc-text">实现模块化架构的最佳实践</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E9%A1%B9%E7%9B%AE%E6%96%87%E4%BB%B6%E5%A4%B9%EF%BC%8C%E7%84%B6%E5%90%8E%E8%BF%9B%E5%85%A5%E6%94%B9%E6%96%87%E4%BB%B6%E5%A4%B9%E7%9A%84%E5%91%BD%E4%BB%A4%E7%9B%AE%E5%BD%95%E6%89%A7%E8%A1%8C%E4%BB%A5%E4%B8%8B%E5%91%BD%E4%BB%A4%E5%88%9B%E5%BB%BA%E9%A1%B9%E7%9B%AE"><span class="toc-number">3.1.</span> <span class="toc-text">创建项目文件夹，然后进入改文件夹的命令目录执行以下命令创建项目</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9E%E7%8E%B0%E9%A2%86%E5%9F%9F%E5%B1%82"><span class="toc-number">3.2.</span> <span class="toc-text">实现领域层</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9E%E7%8E%B0%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD%E5%B1%82"><span class="toc-number">3.3.</span> <span class="toc-text">实现基础设施层</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9E%E7%8E%B0%E5%BA%94%E7%94%A8%E6%9C%8D%E5%8A%A1%E5%B1%82"><span class="toc-number">3.4.</span> <span class="toc-text">实现应用服务层</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9E%E7%8E%B0httpapi"><span class="toc-number">3.5.</span> <span class="toc-text">实现httpapi</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%94%A8swagger%E8%B0%83%E8%AF%95%E6%8E%A5%E5%8F%A3"><span class="toc-number">3.6.</span> <span class="toc-text">用swagger调试接口</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A8%A1%E5%9D%97%E5%8C%96%E6%9E%B6%E6%9E%84%E7%9A%84%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5%E7%9A%84%E5%A5%BD%E5%A4%84"><span class="toc-number">4.</span> <span class="toc-text">模块化架构的最佳实践的好处</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E6%A1%A3%EF%BC%9A"><span class="toc-number">5.</span> <span class="toc-text">参考文档：</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2020/10/13/best-practices-for-ABP-vNext-modular-architecture/" title="ABP vnext模块化架构的最佳实践的实现">ABP vnext模块化架构的最佳实践的实现</a><time datetime="2020-10-13T14:55:00.000Z" title="发表于 2020-10-13 22:55:00">2020-10-13</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2020/03/17/teach-you-how-to-build-API-interface-services-with-Abp-vnext/" title="手把手教你用Abp vnext构建API接口服务">手把手教你用Abp vnext构建API接口服务</a><time datetime="2020-03-17T09:10:00.000Z" title="发表于 2020-03-17 17:10:00">2020-03-17</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023 By 黄明基</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaidWrap = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaidWrap.length) {
+    window.runMermaid = () => {
+      window.loadMermaid = true
+      const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+      Array.from($mermaidWrap).forEach((item, index) => {
+        const mermaidSrc = item.firstElementChild
+        const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+        const mermaidID = 'mermaid-' + index
+        const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+        mermaid.mermaidAPI.render(mermaidID, mermaidDefinition, (svgCode) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svgCode)
+        })
+      })
+    }
+
+    const loadMermaid = () => {
+      window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js').then(runMermaid)
+    }
+
+    window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+  }
+})()</script><script>function loadGitalk () {
+  function initGitalk () {
+    var gitalk = new Gitalk(Object.assign({
+      clientID: 'e967a0a9c5fad17b2204',
+      clientSecret: '5ae33a65a9ccc0ea81d1d35beac8532e3af158c7',
+      repo: 'huangmingji.github.io',
+      owner: 'huangmingji',
+      admin: ['huangmingji'],
+      id: '76c7b0f9f818540d46abe1c6cf5f5619',
+      updateCountCallback: commentCount
+    },null))
+
+    gitalk.render('gitalk-container')
+  }
+
+  if (typeof Gitalk === 'function') initGitalk()
+  else {
+    getCSS('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css')
+    getScript('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js').then(initGitalk)
+  }
+}
+
+function commentCount(n){
+  let isCommentCount = document.querySelector('#post-meta .gitalk-comment-count')
+  if (isCommentCount) {
+    isCommentCount.innerHTML= n
+  }
+}
+
+if ('Gitalk' === 'Gitalk' || !true) {
+  if (true) btf.loadComment(document.getElementById('gitalk-container'), loadGitalk)
+  else loadGitalk()
+} else {
+  function loadOtherComment () {
+    loadGitalk()
+  }
+}</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
