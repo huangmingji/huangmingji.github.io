@@ -1,0 +1,448 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"><title>部署 MySQL 高可用高性能集群 | 我与春风皆过客，你携秋水揽星河</title><meta name="author" content="黄明基"><meta name="copyright" content="黄明基"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="MySQL 是一款流行的轻量级数据库，很多应用都是使用它作为数据存储。作为小型应用的数据库，它完全可以胜任，但是如果是大型应用，高性能高可用的要求，单服务器部署的MySQL就不够了。MySQL NDB Cluster 为这个需求提供了一个官方的集群解决方案。 MySQL NDB Cluster 是什么MySQL NDB Cluster 是 MySQL 的一个高可用、高冗余版本，适用于分布式计算环境">
+<meta property="og:type" content="article">
+<meta property="og:title" content="部署 MySQL 高可用高性能集群">
+<meta property="og:url" content="https://huangmingji.github.io/2021/06/20/deploy-the-MySQL-high-availability-and-high-performance-cluster/index.html">
+<meta property="og:site_name" content="我与春风皆过客，你携秋水揽星河">
+<meta property="og:description" content="MySQL 是一款流行的轻量级数据库，很多应用都是使用它作为数据存储。作为小型应用的数据库，它完全可以胜任，但是如果是大型应用，高性能高可用的要求，单服务器部署的MySQL就不够了。MySQL NDB Cluster 为这个需求提供了一个官方的集群解决方案。 MySQL NDB Cluster 是什么MySQL NDB Cluster 是 MySQL 的一个高可用、高冗余版本，适用于分布式计算环境">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://huangmingji.github.io/2021/06/20/deploy-the-MySQL-high-availability-and-high-performance-cluster/cover.jpg">
+<meta property="article:published_time" content="2021-06-20T14:47:00.000Z">
+<meta property="article:modified_time" content="2023-02-12T16:31:36.914Z">
+<meta property="article:author" content="黄明基">
+<meta property="article:tag" content="MySQL">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://huangmingji.github.io/2021/06/20/deploy-the-MySQL-high-availability-and-high-performance-cluster/cover.jpg"><link rel="shortcut icon" href="/img/favicon.jpg"><link rel="canonical" href="https://huangmingji.github.io/2021/06/20/deploy-the-MySQL-high-availability-and-high-performance-cluster/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '部署 MySQL 高可用高性能集群',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-02-13 00:31:36'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = url => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      link.onload = () => resolve()
+      link.onerror = () => reject()
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 5.4.2"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/favicon.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">3</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">3</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/2021/06/20/deploy-the-MySQL-high-availability-and-high-performance-cluster/cover.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="我与春风皆过客，你携秋水揽星河"><span class="site-name">我与春风皆过客，你携秋水揽星河</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">部署 MySQL 高可用高性能集群</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-06-20T14:47:00.000Z" title="发表于 2021-06-20 22:47:00">2021-06-20</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-02-12T16:31:36.914Z" title="更新于 2023-02-13 00:31:36">2023-02-13</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/MySQL/">MySQL</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="部署 MySQL 高可用高性能集群"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>MySQL 是一款流行的轻量级数据库，很多应用都是使用它作为数据存储。作为小型应用的数据库，它完全可以胜任，但是如果是大型应用，高性能高可用的要求，单服务器部署的MySQL就不够了。MySQL NDB Cluster 为这个需求提供了一个官方的集群解决方案。</p>
+<h1 id="MySQL-NDB-Cluster-是什么"><a href="#MySQL-NDB-Cluster-是什么" class="headerlink" title="MySQL NDB Cluster 是什么"></a>MySQL NDB Cluster 是什么</h1><p>MySQL NDB Cluster 是 MySQL 的一个高可用、高冗余版本，适用于分布式计算环境。<br><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/mysql-cluster-excerpt/5.7/en/mysql-cluster.html">文档链接</a>  </p>
+<h1 id="搭建集群的前置工作"><a href="#搭建集群的前置工作" class="headerlink" title="搭建集群的前置工作"></a>搭建集群的前置工作</h1><p>至少准备 3 台服务器，一台作为管理服务器，两台作为数据服务器和 SQL 服务器，当然有更多的服务器会更好。  </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">管理服务器mgm：192.168.0.105</span><br><span class="line">数据服务器ndb1：192.168.0.106</span><br><span class="line">数据服务器ndb2：192.168.0.104</span><br><span class="line">sql服务器：192.168.0.106</span><br><span class="line">sql服务器：192.168.0.104</span><br></pre></td></tr></table></figure>
+
+<p>本文以 ubuntu20.04 为例，所有操作都可用于 ubuntu 系统。  </p>
+<h1 id="开始部署集群"><a href="#开始部署集群" class="headerlink" title="开始部署集群"></a>开始部署集群</h1><p>首先下载 <a target="_blank" rel="noopener" href="https://dev.mysql.com/downloads/cluster/">MySQL NDB Cluster</a>二进制文件，解压缩后开始下面的步骤。  </p>
+<h2 id="部署管理服务器"><a href="#部署管理服务器" class="headerlink" title="部署管理服务器"></a>部署管理服务器</h2><ol>
+<li>更新系统</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apt update -y &amp;&amp; apt upgrade -y &amp;&amp; apt install libncurses5 -y</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>开启防火墙，集群管理服务默认使用 1186 端口</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ufw allow 22</span><br><span class="line">ufw allow 1186</span><br><span class="line">ufw <span class="built_in">enable</span></span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>复制 ndb_mgm 和 ndb_mgmd 到管理服务器</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scp ./mysql-cluster-gpl-7.6.17-linux-glibc2.12-x86_64/bin/ndb_mgm* mgm@192.168.0.105:/home/mgm</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>在管理服务器复制 ndb_mgm 和 ndb_mgmd 到&#x2F;usr&#x2F;local&#x2F;bin 文件夹</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cp</span> -rfv /home/mgm/ndb_mgm* /usr/local/bin</span><br></pre></td></tr></table></figure>
+
+<ol start="5">
+<li>赋予 ndb_mgm 和 ndb_mgmd 可执行权限</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">chmod</span> +x /usr/local/bin/ndb_mgm*</span><br></pre></td></tr></table></figure>
+
+<ol start="6">
+<li>添加配置文件</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> /var/lib/mysql-cluster</span><br><span class="line">vi /var/lib/mysql-cluster/config.ini</span><br></pre></td></tr></table></figure>
+
+<ol start="7">
+<li>config.ini</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">[ndbd default]</span><br><span class="line"><span class="comment"># Options affecting ndbd processes on all data nodes:</span></span><br><span class="line">NoOfReplicas=2                     <span class="comment"># Number of fragment replicas</span></span><br><span class="line">DataMemory=98M                     <span class="comment"># How much memory to allocate for data storage</span></span><br><span class="line"></span><br><span class="line">[ndb_mgmd]</span><br><span class="line"><span class="comment"># Management process options:</span></span><br><span class="line">HostName=192.168.0.105             <span class="comment"># Hostname or IP address of management node</span></span><br><span class="line">NodeId=1                           <span class="comment"># Node ID for this Management node</span></span><br><span class="line">DataDir=/var/lib/mysql-cluster     <span class="comment"># Directory for management node log files</span></span><br><span class="line"></span><br><span class="line">[ndbd]</span><br><span class="line"><span class="comment"># Options for data node &quot;A&quot;:</span></span><br><span class="line">                                  <span class="comment"># (one [ndbd] section per data node)</span></span><br><span class="line">HostName=192.168.0.104            <span class="comment"># Hostname or IP address</span></span><br><span class="line">NodeId=2                          <span class="comment"># Node ID for this data node</span></span><br><span class="line">DataDir=/data/mysql-cluster/data          <span class="comment"># Directory for this data node&#x27;s data files</span></span><br><span class="line"></span><br><span class="line">[ndbd]</span><br><span class="line"><span class="comment"># Options for data node &quot;B”:</span></span><br><span class="line">                                <span class="comment"># (one [ndbd] section per data node)</span></span><br><span class="line">HostName=192.168.0.106          <span class="comment"># Hostname or IP address</span></span><br><span class="line">NodeId=3                        <span class="comment"># Node ID for this data node</span></span><br><span class="line">DataDir=/data/mysql-cluster/data        <span class="comment"># Directory for this data node&#x27;s data files</span></span><br><span class="line"></span><br><span class="line">[mysqld]</span><br><span class="line"><span class="comment"># SQL node options:</span></span><br><span class="line">HostName=192.168.0.104       <span class="comment"># Hostname or IP address</span></span><br><span class="line">                             <span class="comment"># (additional mysqld connections can be</span></span><br><span class="line">                             <span class="comment"># specified for this node for various</span></span><br><span class="line">                             <span class="comment"># purposes such as running ndb_restore)</span></span><br><span class="line"></span><br><span class="line">[mysqld]</span><br><span class="line"><span class="comment"># SQL node options:</span></span><br><span class="line">HostName=192.168.0.106       <span class="comment"># Hostname or IP address</span></span><br><span class="line">                             <span class="comment"># (additional mysqld connections can be</span></span><br><span class="line">                             <span class="comment"># specified for this node for various</span></span><br><span class="line">                             <span class="comment"># purposes such as running ndb_restore)</span></span><br></pre></td></tr></table></figure>
+
+<ol start="8">
+<li>初始化并启动管理服务器</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /usr/local/bin/</span><br><span class="line">ndb_mgmd --initial --configdir=/var/lib/mysql-cluster -f /var/lib/mysql-cluster/config.ini --ndb-nodeid=1</span><br></pre></td></tr></table></figure>
+
+<p>当出现以下结果的时候，表示管理服务器已经启动成功了  </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">root@mgm:/usr/local/bin<span class="comment"># ndb_mgmd --initial --configdir=/var/lib/mysql-cluster -f /var/lib/mysql-cluster/config.ini --ndb-nodeid=1</span></span><br><span class="line">MySQL Cluster Management Server mysql-5.7.33 ndb-7.6.17</span><br></pre></td></tr></table></figure>
+
+<p>我们再执行 ndb_mgm 命令，可以查看当前集群的状态  </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">root@mgm:/usr/local/bin<span class="comment"># ndb_mgm</span></span><br><span class="line">-- NDB Cluster -- Management Client --</span><br><span class="line">ndb_mgm&gt; show</span><br><span class="line">Connected to Management Server at: localhost:1186</span><br><span class="line">Cluster Configuration</span><br><span class="line">---------------------</span><br><span class="line">[ndbd(NDB)]	2 node(s)</span><br><span class="line"><span class="built_in">id</span>=2 (not connected, accepting connect from 192.168.0.104)</span><br><span class="line"><span class="built_in">id</span>=3 (not connected, accepting connect from 192.168.0.106)</span><br><span class="line"></span><br><span class="line">[ndb_mgmd(MGM)]	1 node(s)</span><br><span class="line"><span class="built_in">id</span>=1	@192.168.0.105  (mysql-5.7.33 ndb-7.6.17)</span><br><span class="line"></span><br><span class="line">[mysqld(API)]	2 node(s)</span><br><span class="line"><span class="built_in">id</span>=4 (not connected, accepting connect from 192.168.0.104)</span><br><span class="line"><span class="built_in">id</span>=5 (not connected, accepting connect from 192.168.0.106)</span><br></pre></td></tr></table></figure>
+
+<h2 id="部署数据服务器"><a href="#部署数据服务器" class="headerlink" title="部署数据服务器"></a>部署数据服务器</h2><p>在所有数据服务器上执行以下操作</p>
+<ol>
+<li>更新系统</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apt update -y &amp;&amp; apt upgrade -y &amp;&amp; apt install libncurses5 -y</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>开启防火墙</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ufw allow 22</span><br><span class="line">ufw allow 2202</span><br><span class="line">ufw <span class="built_in">enable</span></span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>复制 ndbd 和 ndbmtd 到数据服务器</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#复制到192.168.0.106</span></span><br><span class="line">scp ./mysql-cluster-gpl-7.6.17-linux-glibc2.12-x86_64/bin/ndbd ndb1@192.168.0.106:/home/ndb1</span><br><span class="line">scp ./mysql-cluster-gpl-7.6.17-linux-glibc2.12-x86_64/bin/ndbmtd ndb1@192.168.0.106:/home/ndb1</span><br><span class="line"></span><br><span class="line"><span class="comment">#复制到192.168.0.104</span></span><br><span class="line">scp ./mysql-cluster-gpl-7.6.17-linux-glibc2.12-x86_64/bin/ndbd ndb2@192.168.0.104:/home/ndb2</span><br><span class="line">scp ./mysql-cluster-gpl-7.6.17-linux-glibc2.12-x86_64/bin/ndbmtd ndb2@192.168.0.104:/home/ndb2</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>在管理服务器复制 ndbd 和 ndbmtd 到&#x2F;usr&#x2F;local&#x2F;bin 文件夹</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#192.168.0.106</span></span><br><span class="line"><span class="built_in">cp</span> -rfv /home/ndb1/ndbd /usr/local/bin</span><br><span class="line"><span class="built_in">cp</span> -rfv /home/ndb1/ndbmtd /usr/local/bin</span><br><span class="line"></span><br><span class="line"><span class="comment">#192.168.0.104</span></span><br><span class="line"><span class="built_in">cp</span> -rfv /home/ndb2/ndbd /usr/local/bin</span><br><span class="line"><span class="built_in">cp</span> -rfv /home/ndb2/ndbmtd /usr/local/bin</span><br></pre></td></tr></table></figure>
+
+<ol start="5">
+<li>赋予 ndbd 可执行权限</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">chmod</span> +x /usr/local/bin/ndbd</span><br><span class="line"><span class="built_in">chmod</span> +x /usr/local/bin/ndbmtd</span><br></pre></td></tr></table></figure>
+
+<ol start="6">
+<li>在&#x2F;etc下加入my.cnf文件</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/my.cnf</span><br></pre></td></tr></table></figure>
+
+<p>my.cnf文件  </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[mysqld]</span><br><span class="line"><span class="comment"># Options for mysqld process:</span></span><br><span class="line">ndbcluster                        <span class="comment"># run NDB storage engine</span></span><br><span class="line"></span><br><span class="line">[mysql_cluster]</span><br><span class="line"><span class="comment"># Options for NDB Cluster processes:</span></span><br><span class="line">ndb-connectstring=192.168.0.105  <span class="comment"># location of management server</span></span><br></pre></td></tr></table></figure>
+
+<ol start="7">
+<li>创建数据保存的目录，必须与管理服务配置的路径一致</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -p /data/mysql-cluster/data</span><br></pre></td></tr></table></figure>
+
+<ol start="8">
+<li>启动数据服务</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">root@ndb1:/usr/local/bin<span class="comment"># ndbd</span></span><br><span class="line">2021-06-20 08:10:23 [ndbd] INFO     -- Angel connected to <span class="string">&#x27;192.168.0.105:1186&#x27;</span></span><br><span class="line">2021-06-20 08:10:23 [ndbd] INFO     -- Angel allocated nodeid: 3</span><br></pre></td></tr></table></figure>
+
+<ol start="9">
+<li><p>回到集群管理服务器查看集群状态，此时可以看到数据服务已经连接成功</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">root@mgm:/usr/local/bin<span class="comment"># ndb_mgm</span></span><br><span class="line">-- NDB Cluster -- Management Client --</span><br><span class="line">ndb_mgm&gt; show</span><br><span class="line">Connected to Management Server at: localhost:1186</span><br><span class="line">Cluster Configuration</span><br><span class="line">---------------------</span><br><span class="line">[ndbd(NDB)]	2 node(s)</span><br><span class="line"><span class="built_in">id</span>=2 (not connected, accepting connect from 192.168.0.104)</span><br><span class="line"><span class="built_in">id</span>=3	@192.168.0.106  (mysql-5.7.33 ndb-7.6.17, starting, Nodegroup: 0)</span><br><span class="line"></span><br><span class="line">[ndb_mgmd(MGM)]	1 node(s)</span><br><span class="line"><span class="built_in">id</span>=1	@192.168.0.105  (mysql-5.7.33 ndb-7.6.17)</span><br><span class="line"></span><br><span class="line">[mysqld(API)]	2 node(s)</span><br><span class="line"><span class="built_in">id</span>=4 (not connected, accepting connect from 192.168.0.104)</span><br><span class="line"><span class="built_in">id</span>=5 (not connected, accepting connect from 192.168.0.106)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>在另一台服务器（192.168.0.104）重复 4、5、6、7 步骤的操作，结果可看到</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">root@ndb2:/usr/local/bin<span class="comment"># ndbd</span></span><br><span class="line">2021-06-20 08:20:10 [ndbd] INFO     -- Angel connected to <span class="string">&#x27;192.168.0.105:1186&#x27;</span></span><br><span class="line">2021-06-20 08:20:10 [ndbd] INFO     -- Angel allocated nodeid: 2</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>回到集群管理服务器查看集群状态，此时可以看到所有数据服务已经连接成功</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">root@mgm:/usr/local/bin<span class="comment"># ndb_mgm</span></span><br><span class="line">-- NDB Cluster -- Management Client --</span><br><span class="line">ndb_mgm&gt; show</span><br><span class="line">Connected to Management Server at: localhost:1186</span><br><span class="line">Cluster Configuration</span><br><span class="line">---------------------</span><br><span class="line">[ndbd(NDB)]	2 node(s)</span><br><span class="line"><span class="built_in">id</span>=2	@192.168.0.104  (mysql-5.7.33 ndb-7.6.17, Nodegroup: 0, *)</span><br><span class="line"><span class="built_in">id</span>=3	@192.168.0.106  (mysql-5.7.33 ndb-7.6.17, Nodegroup: 0)</span><br><span class="line"></span><br><span class="line">[ndb_mgmd(MGM)]	1 node(s)</span><br><span class="line"><span class="built_in">id</span>=1	@192.168.0.105  (mysql-5.7.33 ndb-7.6.17)</span><br><span class="line"></span><br><span class="line">[mysqld(API)]	2 node(s)</span><br><span class="line"><span class="built_in">id</span>=4 (not connected, accepting connect from 192.168.0.104)</span><br><span class="line"><span class="built_in">id</span>=5 (not connected, accepting connect from 192.168.0.106)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>在目录&#x2F;data&#x2F;mysql&#x2F;data下面可以看到数据服务已经产生了数据</p>
+</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">root@ndb1:~<span class="comment"># ls /data/mysql/data/</span></span><br><span class="line">ndb_3_fs  ndb_3_out.log  ndb_3.pid</span><br></pre></td></tr></table></figure>
+
+<h2 id="部署-SQL-服务"><a href="#部署-SQL-服务" class="headerlink" title="部署 SQL 服务"></a>部署 SQL 服务</h2><ol>
+<li><p>复制 MySQL 到SQL服务器</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">scp ./mysql-cluster-gpl-7.6.17-linux-glibc2.12-x86_64.tar.gz ndb2@192.168.0.104:/home/ndb2</span><br><span class="line">scp ./mysql-cluster-gpl-7.6.17-linux-glibc2.12-x86_64.tar.gz ndb1@192.168.0.106:/home/ndb1</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>解压缩 MySQL, 然后复制到&#x2F;usr&#x2F;local目录</p>
+</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">tar -zxvf mysql-cluster-gpl-7.6.17-linux-glibc2.12-x86_64.tar.gz</span><br><span class="line"><span class="built_in">cp</span> -rfv mysql-cluster-gpl-7.6.17-linux-glibc2.12-x86_64 /usr/local/</span><br><span class="line"><span class="built_in">ln</span> -snf /usr/local/mysql-cluster-gpl-7.6.17-linux-glibc2.12-x86_64 /usr/local/mysql</span><br><span class="line"></span><br><span class="line"><span class="built_in">cp</span> /usr/local/mysql/support-files/mysql.server /etc/init.d/mysql.server</span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:/usr/local/mysql/bin</span><br><span class="line"><span class="built_in">source</span> /etc/profile</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>开启防火墙</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ufw allow 22</span><br><span class="line">ufw allow 3306</span><br><span class="line">ufw <span class="built_in">enable</span></span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>创建 MySQL 数据存放的目录</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -p /data/mysql/data</span><br><span class="line"><span class="built_in">mkdir</span> -p /data/mysql/run</span><br><span class="line"><span class="built_in">mkdir</span> -p /var/log/mysql</span><br></pre></td></tr></table></figure>
+
+<ol start="5">
+<li><p>创建 mysql 用户，创建相关目录</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">groupadd mysql</span><br><span class="line">useradd -r -g mysql -s /bin/false mysql</span><br><span class="line"><span class="built_in">chown</span> mysql:mysql /data/mysql/data</span><br><span class="line"><span class="built_in">chmod</span> 750 /data/mysql/data</span><br><span class="line"></span><br><span class="line"><span class="built_in">chown</span> mysql:mysql /data/mysql/run</span><br><span class="line"><span class="built_in">chmod</span> 750 /data/mysql/run</span><br><span class="line"></span><br><span class="line"><span class="built_in">chown</span> mysql:mysql /var/log/mysql</span><br><span class="line"><span class="built_in">chmod</span> 750 /var/log/mysql</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>创建 MySQL 配置文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -p /etc/mysql</span><br><span class="line">vi /etc/mysql/my.cnf</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>my.cnf</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">[mysqld]</span><br><span class="line"><span class="comment"># Options for mysqld process:</span></span><br><span class="line">ndbcluster                 <span class="comment"># run NDB storage engine</span></span><br><span class="line"></span><br><span class="line">pid-file = /data/mysql/run/mysqld.pid</span><br><span class="line">socket = /data/mysql/run/mysqld.sock</span><br><span class="line">datadir = /data/mysql/data</span><br><span class="line"><span class="comment"># log-error = /var/log/mysql/error.log</span></span><br><span class="line"><span class="comment"># By default we only accept connections from localhost</span></span><br><span class="line">bind-address = 192.168.0.106</span><br><span class="line"><span class="comment"># Disabling symbolic-links is recommended to prevent assorted security risks</span></span><br><span class="line">symbolic-links = 0</span><br><span class="line"></span><br><span class="line">[mysql_cluster]</span><br><span class="line"><span class="comment"># Options for NDB Cluster processes:</span></span><br><span class="line">ndb-connectstring = 192.168.0.105  <span class="comment"># location of management server</span></span><br><span class="line"></span><br><span class="line">[client]</span><br><span class="line">socket = /data/mysql/run/mysqld.sock</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>初始化MySQL</p>
+</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/local/mysql/bin/mysqld --defaults-file=/etc/mysql/my.cnf --initialize --user=mysql --basedir=/usr/local/mysql</span><br></pre></td></tr></table></figure>
+
+<ol start="9">
+<li>记录下 MySQL 初始化生成的 root 用户密码 sF#Hy,IuT6d#</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">root@ndb1:~<span class="comment"># /usr/local/mysql/bin/mysqld --defaults-file=/etc/mysql/my.cnf --initialize --user=mysql --basedir=/usr/local/mysql</span></span><br><span class="line">2021-06-20T12:23:26.874302Z 0 [Warning] TIMESTAMP with implicit DEFAULT value is deprecated. Please use --explicit_defaults_for_timestamp server option (see documentation <span class="keyword">for</span> more details).</span><br><span class="line">2021-06-20T12:23:27.102146Z 0 [Warning] InnoDB: New <span class="built_in">log</span> files created, LSN=45790</span><br><span class="line">2021-06-20T12:23:27.145317Z 0 [Warning] InnoDB: Creating foreign key constraint system tables.</span><br><span class="line">2021-06-20T12:23:27.154405Z 0 [Warning] No existing UUID has been found, so we assume that this is the first time that this server has been started. Generating a new UUID: 50a15854-d1c2-11eb-9792-000c29681e23.</span><br><span class="line">2021-06-20T12:23:27.155927Z 0 [Warning] Gtid table is not ready to be used. Table <span class="string">&#x27;mysql.gtid_executed&#x27;</span> cannot be opened.</span><br><span class="line">2021-06-20T12:23:28.339372Z 0 [Warning] CA certificate ca.pem is self signed.</span><br><span class="line">2021-06-20T12:23:28.624534Z 1 [Note] A temporary password is generated <span class="keyword">for</span> root@localhost: sF<span class="comment">#Hy,IuT6d#</span></span><br></pre></td></tr></table></figure>
+
+<ol start="10">
+<li>启动MySQL</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/local/mysql/bin/mysqld_safe --user=mysql &amp;</span><br></pre></td></tr></table></figure>
+
+<ol start="11">
+<li>修改 root 用户密码</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysqladmin -uroot -p<span class="string">&#x27;sF#Hy,IuT6d#&#x27;</span> password <span class="string">&#x27;123456&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<ol start="12">
+<li>回到集群管理服务器查看集群状态，此时可以看到有一个 SQL 服务已经连接上了</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">root@mgm:/usr/local/bin<span class="comment"># ndb_mgm</span></span><br><span class="line">-- NDB Cluster -- Management Client --</span><br><span class="line">ndb_mgm&gt; show</span><br><span class="line">Connected to Management Server at: localhost:1186</span><br><span class="line">Cluster Configuration</span><br><span class="line">---------------------</span><br><span class="line">[ndbd(NDB)]	2 node(s)</span><br><span class="line"><span class="built_in">id</span>=2	@192.168.0.104  (mysql-5.7.33 ndb-7.6.17, Nodegroup: 0, *)</span><br><span class="line"><span class="built_in">id</span>=3	@192.168.0.106  (mysql-5.7.33 ndb-7.6.17, Nodegroup: 0)</span><br><span class="line"></span><br><span class="line">[ndb_mgmd(MGM)]	1 node(s)</span><br><span class="line"><span class="built_in">id</span>=1	@192.168.0.105  (mysql-5.7.33 ndb-7.6.17)</span><br><span class="line"></span><br><span class="line">[mysqld(API)]	2 node(s)</span><br><span class="line"><span class="built_in">id</span>=4 (not connected, accepting connect from 192.168.0.104)</span><br><span class="line"><span class="built_in">id</span>=5	@192.168.0.106  (mysql-5.7.33 ndb-7.6.17)</span><br></pre></td></tr></table></figure>
+
+<ol start="13">
+<li>在另一台服务器（192.168.0.104）部署 SQL 服务，回到集群管理服务器查看集群状态，此时可以看到所有 SQL 服务已经连接成功</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">root@mgm:/usr/local/bin<span class="comment"># ndb_mgm</span></span><br><span class="line">-- NDB Cluster -- Management Client --</span><br><span class="line">ndb_mgm&gt; show</span><br><span class="line">Cluster Configuration</span><br><span class="line">---------------------</span><br><span class="line">[ndbd(NDB)]	2 node(s)</span><br><span class="line"><span class="built_in">id</span>=2	@192.168.0.104  (mysql-5.7.33 ndb-7.6.17, Nodegroup: 0, *)</span><br><span class="line"><span class="built_in">id</span>=3	@192.168.0.106  (mysql-5.7.33 ndb-7.6.17, Nodegroup: 0)</span><br><span class="line"></span><br><span class="line">[ndb_mgmd(MGM)]	1 node(s)</span><br><span class="line"><span class="built_in">id</span>=1	@192.168.0.105  (mysql-5.7.33 ndb-7.6.17)</span><br><span class="line"></span><br><span class="line">[mysqld(API)]	2 node(s)</span><br><span class="line"><span class="built_in">id</span>=4	@192.168.0.104  (mysql-5.7.33 ndb-7.6.17)</span><br><span class="line"><span class="built_in">id</span>=5	@192.168.0.106  (mysql-5.7.33 ndb-7.6.17)</span><br></pre></td></tr></table></figure>
+
+<h2 id="所有集群服务部署完毕，我们来测试一下集群是否真的部署成功"><a href="#所有集群服务部署完毕，我们来测试一下集群是否真的部署成功" class="headerlink" title="所有集群服务部署完毕，我们来测试一下集群是否真的部署成功"></a>所有集群服务部署完毕，我们来测试一下集群是否真的部署成功</h2><ol>
+<li><p>在 192.168.0.106 的 MySQL 上创建数据库和表</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">CREATE DATABASE `wechat`;</span><br><span class="line">CREATE TABLE wechat.user (</span><br><span class="line">	Column1 varchar(100) NULL,</span><br><span class="line">	Column2 varchar(100) NULL</span><br><span class="line">)</span><br><span class="line">ENGINE=ndbcluster</span><br><span class="line">DEFAULT CHARSET=utf8mb4</span><br><span class="line">COLLATE=utf8mb4_general_ci;</span><br></pre></td></tr></table></figure></li>
+<li><p>插入数据并查看</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show databases;</span><br><span class="line">+--------------------+</span><br><span class="line">| Database           |</span><br><span class="line">+--------------------+</span><br><span class="line">| information_schema |</span><br><span class="line">| mysql              |</span><br><span class="line">| ndbinfo            |</span><br><span class="line">| performance_schema |</span><br><span class="line">| sys                |</span><br><span class="line">| wechat             |</span><br><span class="line">+--------------------+</span><br><span class="line">6 rows <span class="keyword">in</span> <span class="built_in">set</span> (0.00 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt; select * from wechat.user;</span><br><span class="line">Empty <span class="built_in">set</span> (0.02 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt; insert wechat.user (Column1, column2) value (<span class="string">&#x27;1&#x27;</span>, <span class="string">&#x27;2&#x27;</span>);</span><br><span class="line">Query OK, 1 row affected (0.01 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt; select * from wechat.user;</span><br><span class="line">+---------+---------+</span><br><span class="line">| Column1 | Column2 |</span><br><span class="line">+---------+---------+</span><br><span class="line">| 1       | 2       |</span><br><span class="line">+---------+---------+</span><br><span class="line">1 row <span class="keyword">in</span> <span class="built_in">set</span> (0.00 sec)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>在另一个 SQL 服务器查询，结果是成功的</p>
+</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show databases;</span><br><span class="line">+--------------------+</span><br><span class="line">| Database           |</span><br><span class="line">+--------------------+</span><br><span class="line">| information_schema |</span><br><span class="line">| mysql              |</span><br><span class="line">| ndbinfo            |</span><br><span class="line">| performance_schema |</span><br><span class="line">| sys                |</span><br><span class="line">| wechat             |</span><br><span class="line">+--------------------+</span><br><span class="line">6 rows <span class="keyword">in</span> <span class="built_in">set</span> (0.00 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt; select * from wechat.user;</span><br><span class="line">Empty <span class="built_in">set</span> (0.07 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt; select * from wechat.user;</span><br><span class="line">+---------+---------+</span><br><span class="line">| Column1 | Column2 |</span><br><span class="line">+---------+---------+</span><br><span class="line">| 1       | 2       |</span><br><span class="line">+---------+---------+</span><br><span class="line">1 row <span class="keyword">in</span> <span class="built_in">set</span> (0.00 sec)</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>现在我们把其中一个数据节点关掉，在管理服务器我们看到 ndbd 已经关闭一个了</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">root@mgm:/usr/local/bin<span class="comment"># ndb_mgm</span></span><br><span class="line">-- NDB Cluster -- Management Client --</span><br><span class="line">ndb_mgm&gt; show</span><br><span class="line">Connected to Management Server at: localhost:1186</span><br><span class="line">Cluster Configuration</span><br><span class="line">---------------------</span><br><span class="line">[ndbd(NDB)]	2 node(s)</span><br><span class="line"><span class="built_in">id</span>=2	@192.168.0.104  (mysql-5.7.33 ndb-7.6.17, Nodegroup: 0, *)</span><br><span class="line"><span class="built_in">id</span>=3 (not connected, accepting connect from 192.168.0.106)</span><br><span class="line"></span><br><span class="line">[ndb_mgmd(MGM)]	1 node(s)</span><br><span class="line"><span class="built_in">id</span>=1	@192.168.0.105  (mysql-5.7.33 ndb-7.6.17)</span><br><span class="line"></span><br><span class="line">[mysqld(API)]	2 node(s)</span><br><span class="line"><span class="built_in">id</span>=4	@192.168.0.104  (mysql-5.7.33 ndb-7.6.17)</span><br><span class="line"><span class="built_in">id</span>=5	@192.168.0.106  (mysql-5.7.33 ndb-7.6.17)</span><br></pre></td></tr></table></figure>
+
+<ol start="5">
+<li>写入一笔数据</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; select * from wechat.user;</span><br><span class="line">+---------+---------+</span><br><span class="line">| Column1 | Column2 |</span><br><span class="line">+---------+---------+</span><br><span class="line">| 1       | 2       |</span><br><span class="line">+---------+---------+</span><br><span class="line">1 row <span class="keyword">in</span> <span class="built_in">set</span> (0.01 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt; insert into wechat.user (Column1, column2) value (<span class="string">&#x27;3&#x27;</span>, <span class="string">&#x27;4&#x27;</span>);</span><br><span class="line">Query OK, 1 row affected (0.00 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt; select * from wechat.user;</span><br><span class="line">+---------+---------+</span><br><span class="line">| Column1 | Column2 |</span><br><span class="line">+---------+---------+</span><br><span class="line">| 3       | 4       |</span><br><span class="line">| 1       | 2       |</span><br><span class="line">+---------+---------+</span><br><span class="line">2 rows <span class="keyword">in</span> <span class="built_in">set</span> (0.00 sec)</span><br></pre></td></tr></table></figure>
+
+<ol start="6">
+<li>在另一台 SQL 服务器查询，结果还是一致的</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; select * from wechat.user;</span><br><span class="line">+---------+---------+</span><br><span class="line">| Column1 | Column2 |</span><br><span class="line">+---------+---------+</span><br><span class="line">| 3       | 4       |</span><br><span class="line">| 1       | 2       |</span><br><span class="line">+---------+---------+</span><br><span class="line">2 rows <span class="keyword">in</span> <span class="built_in">set</span> (0.00 sec)</span><br></pre></td></tr></table></figure>
+
+<ol start="7">
+<li>我们再关闭 192.168.0.106 SQL服务</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">root@mgm:/usr/local/bin<span class="comment"># ndb_mgm</span></span><br><span class="line">-- NDB Cluster -- Management Client --</span><br><span class="line">ndb_mgm&gt; show</span><br><span class="line">Connected to Management Server at: localhost:1186</span><br><span class="line">Cluster Configuration</span><br><span class="line">---------------------</span><br><span class="line">[ndbd(NDB)]	2 node(s)</span><br><span class="line"><span class="built_in">id</span>=2	@192.168.0.104  (mysql-5.7.33 ndb-7.6.17, Nodegroup: 0, *)</span><br><span class="line"><span class="built_in">id</span>=3 (not connected, accepting connect from 192.168.0.106)</span><br><span class="line"></span><br><span class="line">[ndb_mgmd(MGM)]	1 node(s)</span><br><span class="line"><span class="built_in">id</span>=1	@192.168.0.105  (mysql-5.7.33 ndb-7.6.17)</span><br><span class="line"></span><br><span class="line">[mysqld(API)]	2 node(s)</span><br><span class="line"><span class="built_in">id</span>=4	@192.168.0.104  (mysql-5.7.33 ndb-7.6.17)</span><br><span class="line"><span class="built_in">id</span>=5 (not connected, accepting connect from 192.168.0.106)</span><br></pre></td></tr></table></figure>
+
+<ol start="8">
+<li>在 192.168.0.104 的 SQL 服务写入一笔数据</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; insert into wechat.user (Column1, column2) value (<span class="string">&#x27;5&#x27;</span>, <span class="string">&#x27;6&#x27;</span>);</span><br><span class="line">Query OK, 1 row affected (0.00 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt; select * from wechat.user;</span><br><span class="line">+---------+---------+</span><br><span class="line">| Column1 | Column2 |</span><br><span class="line">+---------+---------+</span><br><span class="line">| 5       | 6       |</span><br><span class="line">| 3       | 4       |</span><br><span class="line">| 1       | 2       |</span><br><span class="line">+---------+---------+</span><br><span class="line">3 rows <span class="keyword">in</span> <span class="built_in">set</span> (0.00 sec)</span><br></pre></td></tr></table></figure>
+
+<ol start="9">
+<li>启动 192.168.0.106 的数据服务和SQL服务</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">root@mgm:/usr/local/bin<span class="comment"># ndb_mgm</span></span><br><span class="line">-- NDB Cluster -- Management Client --</span><br><span class="line">ndb_mgm&gt; show</span><br><span class="line">Connected to Management Server at: localhost:1186</span><br><span class="line">Cluster Configuration</span><br><span class="line">---------------------</span><br><span class="line">[ndbd(NDB)]	2 node(s)</span><br><span class="line"><span class="built_in">id</span>=2	@192.168.0.104  (mysql-5.7.33 ndb-7.6.17, Nodegroup: 0, *)</span><br><span class="line"><span class="built_in">id</span>=3	@192.168.0.106  (mysql-5.7.33 ndb-7.6.17, Nodegroup: 0)</span><br><span class="line"></span><br><span class="line">[ndb_mgmd(MGM)]	1 node(s)</span><br><span class="line"><span class="built_in">id</span>=1	@192.168.0.105  (mysql-5.7.33 ndb-7.6.17)</span><br><span class="line"></span><br><span class="line">[mysqld(API)]	2 node(s)</span><br><span class="line"><span class="built_in">id</span>=4	@192.168.0.104  (mysql-5.7.33 ndb-7.6.17)</span><br><span class="line"><span class="built_in">id</span>=5	@192.168.0.106  (mysql-5.7.33 ndb-7.6.17)</span><br></pre></td></tr></table></figure>
+
+<ol start="10">
+<li>在 192.168.0.106 查询数据库发现，发生故障期间产生的数据已经同步了过来</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">root@ndb1:~<span class="comment"># mysql -uroot -p</span></span><br><span class="line">Enter password:</span><br><span class="line">Welcome to the MySQL monitor.  Commands end with ; or \g.</span><br><span class="line">Your MySQL connection <span class="built_in">id</span> is 4</span><br><span class="line">Server version: 5.7.33-ndb-7.6.17-cluster-gpl MySQL Cluster Community Server (GPL)</span><br><span class="line"></span><br><span class="line">Copyright (c) 2000, 2021, Oracle and/or its affiliates.</span><br><span class="line"></span><br><span class="line">Oracle is a registered trademark of Oracle Corporation and/or its</span><br><span class="line">affiliates. Other names may be trademarks of their respective</span><br><span class="line">owners.</span><br><span class="line"></span><br><span class="line">Type <span class="string">&#x27;help;&#x27;</span> or <span class="string">&#x27;\h&#x27;</span> <span class="keyword">for</span> <span class="built_in">help</span>. Type <span class="string">&#x27;\c&#x27;</span> to clear the current input statement.</span><br><span class="line"></span><br><span class="line">mysql&gt; select * from wechat.user;</span><br><span class="line">+---------+---------+</span><br><span class="line">| Column1 | Column2 |</span><br><span class="line">+---------+---------+</span><br><span class="line">| 1       | 2       |</span><br><span class="line">| 5       | 6       |</span><br><span class="line">| 3       | 4       |</span><br><span class="line">+---------+---------+</span><br><span class="line">3 rows <span class="keyword">in</span> <span class="built_in">set</span> (0.08 sec)</span><br></pre></td></tr></table></figure>
+
+<h2 id="数据库集群部署成功了，总结一下集群的注意事项"><a href="#数据库集群部署成功了，总结一下集群的注意事项" class="headerlink" title="数据库集群部署成功了，总结一下集群的注意事项"></a>数据库集群部署成功了，总结一下集群的注意事项</h2><ol>
+<li>创建表的时候，需要设置ENGINE&#x3D;ndbcluster，具体请看上面的建表脚本。</li>
+<li>每个 SQL 服务需要创建一样的用户密码</li>
+<li>管理服务器不能全部发生故障，否则集群数据库操作失败。</li>
+<li>数据服务器不能全部发生故障，否则集群数据库操作失败。</li>
+<li>SQL 服务器发生故障期间建立的数据库，在恢复后不会自动同步新建数据库过来，需要手动在故障恢复后的服务器上创建同名数据库，之后数据才会自动同步过来。</li>
+<li>只要管理服务器和数据服务器越多，故障发生时，才能保证数据安全的写入，才不会导致数据库系统不可用。</li>
+<li>SQL 服务器越多，把数据库访问的请求通过负载均衡服务分摊到各个 SQL 服务器，就能承受更多的并发量。</li>
+<li>集群启动必须按照以下顺序依次启动，管理服务-&gt;数据服务-&gt;SQL服务。</li>
+</ol>
+<h2 id="相关文档"><a href="#相关文档" class="headerlink" title="相关文档"></a>相关文档</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/mysql-cluster-excerpt/5.7/en/mysql-cluster-install-linux-binary.html">在 Linux 上安装 NDB Cluster 二进制版本</a></li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://huangmingji.github.io">黄明基</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://huangmingji.github.io/2021/06/20/deploy-the-MySQL-high-availability-and-high-performance-cluster/">https://huangmingji.github.io/2021/06/20/deploy-the-MySQL-high-availability-and-high-performance-cluster/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://huangmingji.github.io" target="_blank">我与春风皆过客，你携秋水揽星河</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/MySQL/">MySQL</a></div><div class="post_share"><div class="social-share" data-image="/2021/06/20/deploy-the-MySQL-high-availability-and-high-performance-cluster/cover.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2020/10/13/best-practices-for-ABP-vNext-modular-architecture/" title="ABP vnext模块化架构的最佳实践的实现"><img class="cover" src="/2020/10/13/best-practices-for-ABP-vNext-modular-architecture/cover.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">ABP vnext模块化架构的最佳实践的实现</div></div></a></div></nav><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="gitalk-container"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/favicon.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">黄明基</div><div class="author-info__description">黄明基的博客</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">3</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">3</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/huangmingji"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#MySQL-NDB-Cluster-%E6%98%AF%E4%BB%80%E4%B9%88"><span class="toc-number">1.</span> <span class="toc-text">MySQL NDB Cluster 是什么</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%90%AD%E5%BB%BA%E9%9B%86%E7%BE%A4%E7%9A%84%E5%89%8D%E7%BD%AE%E5%B7%A5%E4%BD%9C"><span class="toc-number">2.</span> <span class="toc-text">搭建集群的前置工作</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%BC%80%E5%A7%8B%E9%83%A8%E7%BD%B2%E9%9B%86%E7%BE%A4"><span class="toc-number">3.</span> <span class="toc-text">开始部署集群</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%83%A8%E7%BD%B2%E7%AE%A1%E7%90%86%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="toc-number">3.1.</span> <span class="toc-text">部署管理服务器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%83%A8%E7%BD%B2%E6%95%B0%E6%8D%AE%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="toc-number">3.2.</span> <span class="toc-text">部署数据服务器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%83%A8%E7%BD%B2-SQL-%E6%9C%8D%E5%8A%A1"><span class="toc-number">3.3.</span> <span class="toc-text">部署 SQL 服务</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%89%80%E6%9C%89%E9%9B%86%E7%BE%A4%E6%9C%8D%E5%8A%A1%E9%83%A8%E7%BD%B2%E5%AE%8C%E6%AF%95%EF%BC%8C%E6%88%91%E4%BB%AC%E6%9D%A5%E6%B5%8B%E8%AF%95%E4%B8%80%E4%B8%8B%E9%9B%86%E7%BE%A4%E6%98%AF%E5%90%A6%E7%9C%9F%E7%9A%84%E9%83%A8%E7%BD%B2%E6%88%90%E5%8A%9F"><span class="toc-number">3.4.</span> <span class="toc-text">所有集群服务部署完毕，我们来测试一下集群是否真的部署成功</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E5%BA%93%E9%9B%86%E7%BE%A4%E9%83%A8%E7%BD%B2%E6%88%90%E5%8A%9F%E4%BA%86%EF%BC%8C%E6%80%BB%E7%BB%93%E4%B8%80%E4%B8%8B%E9%9B%86%E7%BE%A4%E7%9A%84%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-number">3.5.</span> <span class="toc-text">数据库集群部署成功了，总结一下集群的注意事项</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9B%B8%E5%85%B3%E6%96%87%E6%A1%A3"><span class="toc-number">3.6.</span> <span class="toc-text">相关文档</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2021/06/20/deploy-the-MySQL-high-availability-and-high-performance-cluster/" title="部署 MySQL 高可用高性能集群"><img src="/2021/06/20/deploy-the-MySQL-high-availability-and-high-performance-cluster/cover.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="部署 MySQL 高可用高性能集群"/></a><div class="content"><a class="title" href="/2021/06/20/deploy-the-MySQL-high-availability-and-high-performance-cluster/" title="部署 MySQL 高可用高性能集群">部署 MySQL 高可用高性能集群</a><time datetime="2021-06-20T14:47:00.000Z" title="发表于 2021-06-20 22:47:00">2021-06-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2020/10/13/best-practices-for-ABP-vNext-modular-architecture/" title="ABP vnext模块化架构的最佳实践的实现"><img src="/2020/10/13/best-practices-for-ABP-vNext-modular-architecture/cover.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ABP vnext模块化架构的最佳实践的实现"/></a><div class="content"><a class="title" href="/2020/10/13/best-practices-for-ABP-vNext-modular-architecture/" title="ABP vnext模块化架构的最佳实践的实现">ABP vnext模块化架构的最佳实践的实现</a><time datetime="2020-10-13T14:55:00.000Z" title="发表于 2020-10-13 22:55:00">2020-10-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2020/03/17/teach-you-how-to-build-API-interface-services-with-Abp-vnext/" title="手把手教你用Abp vnext构建API接口服务"><img src="/2020/03/17/teach-you-how-to-build-API-interface-services-with-Abp-vnext/cover.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="手把手教你用Abp vnext构建API接口服务"/></a><div class="content"><a class="title" href="/2020/03/17/teach-you-how-to-build-API-interface-services-with-Abp-vnext/" title="手把手教你用Abp vnext构建API接口服务">手把手教你用Abp vnext构建API接口服务</a><time datetime="2020-03-17T09:10:00.000Z" title="发表于 2020-03-17 17:10:00">2020-03-17</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023 By 黄明基</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaidWrap = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaidWrap.length) {
+    window.runMermaid = () => {
+      window.loadMermaid = true
+      const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+      Array.from($mermaidWrap).forEach((item, index) => {
+        const mermaidSrc = item.firstElementChild
+        const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+        const mermaidID = 'mermaid-' + index
+        const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+        mermaid.mermaidAPI.render(mermaidID, mermaidDefinition, (svgCode) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svgCode)
+        })
+      })
+    }
+
+    const loadMermaid = () => {
+      window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js').then(runMermaid)
+    }
+
+    window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+  }
+})()</script><script>function loadGitalk () {
+  function initGitalk () {
+    var gitalk = new Gitalk(Object.assign({
+      clientID: 'e967a0a9c5fad17b2204',
+      clientSecret: '5ae33a65a9ccc0ea81d1d35beac8532e3af158c7',
+      repo: 'huangmingji.github.io',
+      owner: 'huangmingji',
+      admin: ['huangmingji'],
+      id: '8a98e49a6f4ca8828d44b85722788fa1',
+      updateCountCallback: commentCount
+    },null))
+
+    gitalk.render('gitalk-container')
+  }
+
+  if (typeof Gitalk === 'function') initGitalk()
+  else {
+    getCSS('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css')
+    getScript('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js').then(initGitalk)
+  }
+}
+
+function commentCount(n){
+  let isCommentCount = document.querySelector('#post-meta .gitalk-comment-count')
+  if (isCommentCount) {
+    isCommentCount.innerHTML= n
+  }
+}
+
+if ('Gitalk' === 'Gitalk' || !true) {
+  if (true) btf.loadComment(document.getElementById('gitalk-container'), loadGitalk)
+  else loadGitalk()
+} else {
+  function loadOtherComment () {
+    loadGitalk()
+  }
+}</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
