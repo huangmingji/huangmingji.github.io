@@ -1,0 +1,295 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"><title>跨平台桌面应用开发：解锁 Electron 与 shadcn/ui 的潜力 | Stargazer</title><meta name="author" content="黄明基"><meta name="copyright" content="黄明基"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="本文部分内容使用豆包AI进行撰写和润色  在当今数字化转型加速推进的时代，桌面应用程序作为各行各业的关键支撑，持续发挥着不可替代的作用。从医疗领域专业精准的影像诊断软件，助力医生快速洞察病情、制定治疗方案；到建筑设计行业复杂且功能强大的建模工具，将设计师脑海中的蓝图完美转化为虚拟模型；再到电商运营不可或缺的店铺管理软件，高效处理订单、库存等海量数据，桌面应用凭借其对本地资源的深度掌控、卓越的性能">
+<meta property="og:type" content="article">
+<meta property="og:title" content="跨平台桌面应用开发：解锁 Electron 与 shadcn&#x2F;ui 的潜力">
+<meta property="og:url" content="https://stargazer.tech/2025/02/23/cross-platform-desktop-apps-with-electron/index.html">
+<meta property="og:site_name" content="Stargazer">
+<meta property="og:description" content="本文部分内容使用豆包AI进行撰写和润色  在当今数字化转型加速推进的时代，桌面应用程序作为各行各业的关键支撑，持续发挥着不可替代的作用。从医疗领域专业精准的影像诊断软件，助力医生快速洞察病情、制定治疗方案；到建筑设计行业复杂且功能强大的建模工具，将设计师脑海中的蓝图完美转化为虚拟模型；再到电商运营不可或缺的店铺管理软件，高效处理订单、库存等海量数据，桌面应用凭借其对本地资源的深度掌控、卓越的性能">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://stargazer.tech/2025/02/23/cross-platform-desktop-apps-with-electron/cover.png">
+<meta property="article:published_time" content="2025-02-23T14:44:00.000Z">
+<meta property="article:modified_time" content="2025-02-23T14:47:37.235Z">
+<meta property="article:author" content="黄明基">
+<meta property="article:tag" content="NodeJS">
+<meta property="article:tag" content="Typescript">
+<meta property="article:tag" content="Electron">
+<meta property="article:tag" content="跨平台桌面应用开发">
+<meta property="article:tag" content="shadcn&#x2F;ui">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://stargazer.tech/2025/02/23/cross-platform-desktop-apps-with-electron/cover.png"><link rel="shortcut icon" href="/img/favicon.jpg"><link rel="canonical" href="https://stargazer.tech/2025/02/23/cross-platform-desktop-apps-with-electron/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//hm.baidu.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?bdf34ae32c1ab2aff8b8f274d4f0ecd5";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '跨平台桌面应用开发：解锁 Electron 与 shadcn/ui 的潜力',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-02-23 22:47:37'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = url => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      link.onload = () => resolve()
+      link.onerror = () => reject()
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 5.4.2"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/favicon.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">9</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">20</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">6</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="not-top-img fixed" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Stargazer"><span class="site-name">Stargazer</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">跨平台桌面应用开发：解锁 Electron 与 shadcn/ui 的潜力</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-02-23T14:44:00.000Z" title="发表于 2025-02-23 22:44:00">2025-02-23</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-02-23T14:47:37.235Z" title="更新于 2025-02-23 22:47:37">2025-02-23</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E8%B7%A8%E5%B9%B3%E5%8F%B0%E6%A1%8C%E9%9D%A2%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/">跨平台桌面应用开发</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="跨平台桌面应用开发：解锁 Electron 与 shadcn/ui 的潜力"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="post-content" id="article-container"><blockquote>
+<p>本文部分内容使用豆包AI进行撰写和润色</p>
+</blockquote>
+<p>在当今数字化转型加速推进的时代，桌面应用程序作为各行各业的关键支撑，持续发挥着不可替代的作用。从医疗领域专业精准的影像诊断软件，助力医生快速洞察病情、制定治疗方案；到建筑设计行业复杂且功能强大的建模工具，将设计师脑海中的蓝图完美转化为虚拟模型；再到电商运营不可或缺的店铺管理软件，高效处理订单、库存等海量数据，桌面应用凭借其对本地资源的深度掌控、卓越的性能表现以及高度定制化的功能，稳坐软件生态系统的核心宝座。</p>
+<p>然而，随着操作系统领域呈现出 Windows、Mac、Linux 等多足鼎立的格局，且各平台都拥有庞大而忠实的用户群体，开发者面临着前所未有的挑战。若为每个操作系统逐一开发原生应用，不仅意味着要投入天文数字般的时间、人力与资金成本，还要应对不同平台在 API 调用、界面设计规范、硬件适配等诸多方面的差异，宛如在荆棘丛中艰难前行。在此背景下，跨平台桌面应用开发应运而生，成为开发者冲破困境、追求高效的希望之光。</p>
+<p>当下，市面上涌现出一系列令人瞩目的跨平台桌面应用开发框架，它们宛如璀璨星辰，照亮了开发者前行的道路。</p>
+<p>首先来看.NET 的 MAUI（Multi-platform App UI），作为微软精心打造的新一代跨平台利器，它构建于.NET 6 及更高版本之上，整合了 Xamarin.Forms 的跨平台精髓，并进行了全方位优化。开发者借助 C# 语言与统一的 API，能够轻松构建适配 Windows、Mac、Linux、iOS 和 Android 等多平台的应用。以企业级资源管理软件为例，MAUI 可充分利用系统底层功能，实现数据的高速读写与精准管控，同时凭借丰富的 UI 组件库设计出简洁易用的操作界面，为企业运营增效赋能。依托微软强大的技术生态与海量文档支持，开发者遇到难题时能迅速找到解法，大大加快开发节奏。</p>
+<p>Avalonia UI 同样不容小觑，这一开源框架基于.NET 构建，采用 XAML 进行界面设计，与 WPF 和 UWP 有着相似的开发体验。它支持多种编程语言，如 C#、F# 等，为开发者提供了丰富的选择。在开发多媒体编辑软件时，Avalonia UI 能充分发挥其性能优势，流畅处理视频、音频等复杂素材，其高度定制化的组件库可满足创意工作者对界面精美度与功能性的严苛要求。而且，活跃的开源社区为其持续注入活力，不断有新特性、新优化涌现，助力开发者打造出惊艳的跨平台应用。</p>
+<p>而 NodeJS 的 Electron 框架，则以一种别具一格的创新姿态闯入开发者视野。诞生于开源圣地 GitHub 的 Electron，打破了传统桌面开发与前端技术之间的隔阂，将 HTML、CSS、JavaScript 这些 Web 开发领域的 “当家花旦” 引入桌面应用世界。这意味着，只要掌握前端知识，开发者就能如鱼得水，轻松将普通的 HTML 页面转化为具有强大本地交互能力的桌面程序，自如访问本地文件、调用系统通知、与硬件深度交互，为不同操作系统用户呈献一致且流畅的体验，实现知识的高效复用。</p>
+<p>今天，我们要深入探索的是 Electron 框架与 shadcn&#x2F;ui 的协同开发之旅，看看它们如何碰撞出创意的火花，助力开发者打造出惊艳的跨平台桌面应用。</p>
+<h2 id="Electron-框架简介"><a href="#Electron-框架简介" class="headerlink" title="Electron 框架简介"></a>Electron 框架简介</h2><p>Electron 源自 GitHub 这个充满创新活力的开源温床，它就像一座神奇的桥梁，无缝连接 Web 页面与桌面应用的两个天地。开发者凭借前端开发技能，就能让平凡的 HTML 页面摇身一变，成为具备强大本地交互功能的桌面应用。想象一下，那些原本只能在浏览器中运行的网页，通过 Electron 的 “魔力”，瞬间拥有了与操作系统深度交互的本领，能够轻松穿梭于本地文件系统，精准调用系统通知，甚至与硬件设备亲密 “对话”。这一特性对于广大前端开发者而言，无疑是一场知识盛宴，无需再花费大量精力钻研全新的桌面开发语言，就能凭借已有的前端技能，跨越平台差异，为不同操作系统用户递上优质体验。</p>
+<h2 id="shadcn-x2F-ui-简介"><a href="#shadcn-x2F-ui-简介" class="headerlink" title="shadcn&#x2F;ui 简介"></a>shadcn&#x2F;ui 简介</h2><p>shadcn&#x2F;ui 恰似一位专业的美工与交互设计师，专注于为前端应用提供精美、可定制且易于使用的 UI 组件。它基于 Tailwind CSS 构建而成，在 Electron 应用开发进程中，带来了丰富多样的按钮、表单、模态框等组件样式，无论是简约时尚风，还是华丽炫酷范，它都能轻松拿捏。其遵循原子化 CSS 理念，开发者只需巧妙组合简单的类名，就能快速构建出复杂而精致的界面，在提升应用视觉吸引力与用户体验方面堪称 “得力助手”，同时还能保持代码的简洁与高效。</p>
+<h2 id="基于-Electron-和-shadcn-x2F-ui-的开发过程"><a href="#基于-Electron-和-shadcn-x2F-ui-的开发过程" class="headerlink" title="基于 Electron 和 shadcn&#x2F;ui 的开发过程"></a>基于 Electron 和 shadcn&#x2F;ui 的开发过程</h2><h3 id="开发环境搭建"><a href="#开发环境搭建" class="headerlink" title="开发环境搭建"></a>开发环境搭建</h3><ol>
+<li>安装 Node.js：这是开启整个 Electron 与 shadcn&#x2F;ui 开发之旅的基石。确保你的系统已经成功安装 Node.js，打开终端窗口，输入简单的指令 <code>node -v</code>，即可快速查询 Node.js 的版本信息。为了避免后续开发过程中可能出现的兼容性问题，建议紧跟官方步伐，选用最新且稳定的版本。只有在 Node.js 安装就绪后，后续基于 npm 的各种依赖安装才能顺利进行。</li>
+<li>除了用npm做包管理器,还可以使用Yarn和pnpm，通过指令<code>corepack enable yarn</code>来启用 Yarn，或者通过指令<code>corepack enable pnpm</code>来启用 pnpm。</li>
+</ol>
+<h3 id="创建项目"><a href="#创建项目" class="headerlink" title="创建项目"></a>创建项目</h3><ol>
+<li>初始化项目：得益于 Vite 卓越的前端开发体验，越来越多的 Electron 项目也开始应用它来构建开发，但是配置相对复杂，繁琐，所以我们使用<a target="_blank" rel="noopener" href="https://cn.electron-vite.org/guide/introduction">electron-vite</a>来构建开发环境。打开终端窗口，输入以下指令，即可快速创建一个基于 Electron 的项目。</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yarn create @quick-start/electron my-app --template react-ts</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>安装shadcn&#x2F;ui依赖项，此操作需要在项目根目录下执行，参考shadcn&#x2F;ui的<a target="_blank" rel="noopener" href="https://ui.shadcn.com/docs/installation/vite">Vite安装指南</a>和<a target="_blank" rel="noopener" href="https://ui.shadcn.com/docs/installation/manual">手动安装指南</a>。</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yarn add tailwindcss-animate class-variance-authority clsx tailwind-merge lucide-react</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>安装Tailwind CSS，目的是为项目创建一个 Tailwind CSS 配置文件 <code>tailwind.config.js</code> <code>postcss.config.js</code>。</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">yarn add -D tailwindcss postcss autoprefixer</span><br><span class="line">npx tailwindcss init -p</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>更新 <code>tsconfig.json</code></li>
+</ol>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;files&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;references&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="punctuation">&#123;</span> <span class="attr">&quot;path&quot;</span><span class="punctuation">:</span> <span class="string">&quot;./tsconfig.node.json&quot;</span> <span class="punctuation">&#125;</span><span class="punctuation">,</span> <span class="punctuation">&#123;</span> <span class="attr">&quot;path&quot;</span><span class="punctuation">:</span> <span class="string">&quot;./tsconfig.web.json&quot;</span> <span class="punctuation">&#125;</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;compilerOptions&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;baseUrl&quot;</span><span class="punctuation">:</span> <span class="string">&quot;.&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;paths&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;@/*&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;./src/renderer/src/*&quot;</span><span class="punctuation">]</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<ol start="5">
+<li>更新 <code>tsconfig.web.json</code></li>
+</ol>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;extends&quot;</span><span class="punctuation">:</span> <span class="string">&quot;@electron-toolkit/tsconfig/tsconfig.web.json&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;include&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="string">&quot;src/renderer/src/env.d.ts&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="string">&quot;src/renderer/src/**/*&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="string">&quot;src/renderer/src/**/*.tsx&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="string">&quot;src/preload/*.d.ts&quot;</span></span><br><span class="line">  <span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;compilerOptions&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;composite&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;jsx&quot;</span><span class="punctuation">:</span> <span class="string">&quot;react-jsx&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;baseUrl&quot;</span><span class="punctuation">:</span> <span class="string">&quot;.&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;paths&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;@/*&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;./src/renderer/src/*&quot;</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;@renderer/*&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;src/renderer/src/*&quot;</span><span class="punctuation">]</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<ol start="6">
+<li>更新 <code>electron.vite.config.ts</code></li>
+</ol>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; resolve &#125; <span class="keyword">from</span> <span class="string">&#x27;path&#x27;</span></span><br><span class="line"><span class="keyword">import</span> &#123; defineConfig, externalizeDepsPlugin &#125; <span class="keyword">from</span> <span class="string">&#x27;electron-vite&#x27;</span></span><br><span class="line"><span class="keyword">import</span> react <span class="keyword">from</span> <span class="string">&#x27;@vitejs/plugin-react&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="title function_">defineConfig</span>(&#123;</span><br><span class="line">  <span class="attr">main</span>: &#123;</span><br><span class="line">    <span class="attr">plugins</span>: [<span class="title function_">externalizeDepsPlugin</span>()]</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">preload</span>: &#123;</span><br><span class="line">    <span class="attr">plugins</span>: [<span class="title function_">externalizeDepsPlugin</span>()]</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">renderer</span>: &#123;</span><br><span class="line">    <span class="attr">resolve</span>: &#123;</span><br><span class="line">      <span class="attr">alias</span>: &#123;</span><br><span class="line">        <span class="string">&quot;@&quot;</span>: <span class="title function_">resolve</span>(__dirname, <span class="string">&quot;./src/renderer/src&quot;</span>),</span><br><span class="line">        <span class="string">&#x27;@renderer&#x27;</span>: <span class="title function_">resolve</span>(<span class="string">&#x27;src/renderer/src&#x27;</span>)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">plugins</span>: [<span class="title function_">react</span>()]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<ol start="7">
+<li>更新 <code>src/renderer/src/assets/base.css</code></li>
+</ol>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">@tailwind</span> base;</span><br><span class="line"><span class="keyword">@tailwind</span> components;</span><br><span class="line"><span class="keyword">@tailwind</span> utilities;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@layer</span> base &#123;</span><br><span class="line">  <span class="selector-pseudo">:root</span> &#123;</span><br><span class="line">    <span class="attr">--background</span>: <span class="number">0</span> <span class="number">0%</span> <span class="number">100%</span>;</span><br><span class="line">    <span class="attr">--foreground</span>: <span class="number">222.2</span> <span class="number">47.4%</span> <span class="number">11.2%</span>;</span><br><span class="line">    <span class="attr">--muted</span>: <span class="number">210</span> <span class="number">40%</span> <span class="number">96.1%</span>;</span><br><span class="line">    <span class="attr">--muted-foreground</span>: <span class="number">215.4</span> <span class="number">16.3%</span> <span class="number">46.9%</span>;</span><br><span class="line">    <span class="attr">--popover</span>: <span class="number">0</span> <span class="number">0%</span> <span class="number">100%</span>;</span><br><span class="line">    <span class="attr">--popover-foreground</span>: <span class="number">222.2</span> <span class="number">47.4%</span> <span class="number">11.2%</span>;</span><br><span class="line">    <span class="attr">--border</span>: <span class="number">214.3</span> <span class="number">31.8%</span> <span class="number">91.4%</span>;</span><br><span class="line">    <span class="attr">--input</span>: <span class="number">214.3</span> <span class="number">31.8%</span> <span class="number">91.4%</span>;</span><br><span class="line">    <span class="attr">--card</span>: <span class="number">0</span> <span class="number">0%</span> <span class="number">100%</span>;</span><br><span class="line">    <span class="attr">--card-foreground</span>: <span class="number">222.2</span> <span class="number">47.4%</span> <span class="number">11.2%</span>;</span><br><span class="line">    <span class="attr">--primary</span>: <span class="number">222.2</span> <span class="number">47.4%</span> <span class="number">11.2%</span>;</span><br><span class="line">    <span class="attr">--primary-foreground</span>: <span class="number">210</span> <span class="number">40%</span> <span class="number">98%</span>;</span><br><span class="line">    <span class="attr">--secondary</span>: <span class="number">210</span> <span class="number">40%</span> <span class="number">96.1%</span>;</span><br><span class="line">    <span class="attr">--secondary-foreground</span>: <span class="number">222.2</span> <span class="number">47.4%</span> <span class="number">11.2%</span>;</span><br><span class="line">    <span class="attr">--accent</span>: <span class="number">210</span> <span class="number">40%</span> <span class="number">96.1%</span>;</span><br><span class="line">    <span class="attr">--accent-foreground</span>: <span class="number">222.2</span> <span class="number">47.4%</span> <span class="number">11.2%</span>;</span><br><span class="line">    <span class="attr">--destructive</span>: <span class="number">0</span> <span class="number">100%</span> <span class="number">50%</span>;</span><br><span class="line">    <span class="attr">--destructive-foreground</span>: <span class="number">210</span> <span class="number">40%</span> <span class="number">98%</span>;</span><br><span class="line">    <span class="attr">--ring</span>: <span class="number">215</span> <span class="number">20.2%</span> <span class="number">65.1%</span>;</span><br><span class="line">    <span class="attr">--radius</span>: <span class="number">0.5rem</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="selector-class">.dark</span> &#123;</span><br><span class="line">    <span class="attr">--background</span>: <span class="number">224</span> <span class="number">71%</span> <span class="number">4%</span>;</span><br><span class="line">    <span class="attr">--foreground</span>: <span class="number">213</span> <span class="number">31%</span> <span class="number">91%</span>;</span><br><span class="line">    <span class="attr">--muted</span>: <span class="number">223</span> <span class="number">47%</span> <span class="number">11%</span>;</span><br><span class="line">    <span class="attr">--muted-foreground</span>: <span class="number">215.4</span> <span class="number">16.3%</span> <span class="number">56.9%</span>;</span><br><span class="line">    <span class="attr">--accent</span>: <span class="number">216</span> <span class="number">34%</span> <span class="number">17%</span>;</span><br><span class="line">    <span class="attr">--accent-foreground</span>: <span class="number">210</span> <span class="number">40%</span> <span class="number">98%</span>;</span><br><span class="line">    <span class="attr">--popover</span>: <span class="number">224</span> <span class="number">71%</span> <span class="number">4%</span>;</span><br><span class="line">    <span class="attr">--popover-foreground</span>: <span class="number">215</span> <span class="number">20.2%</span> <span class="number">65.1%</span>;</span><br><span class="line">    <span class="attr">--border</span>: <span class="number">216</span> <span class="number">34%</span> <span class="number">17%</span>;</span><br><span class="line">    <span class="attr">--input</span>: <span class="number">216</span> <span class="number">34%</span> <span class="number">17%</span>;</span><br><span class="line">    <span class="attr">--card</span>: <span class="number">224</span> <span class="number">71%</span> <span class="number">4%</span>;</span><br><span class="line">    <span class="attr">--card-foreground</span>: <span class="number">213</span> <span class="number">31%</span> <span class="number">91%</span>;</span><br><span class="line">    <span class="attr">--primary</span>: <span class="number">210</span> <span class="number">40%</span> <span class="number">98%</span>;</span><br><span class="line">    <span class="attr">--primary-foreground</span>: <span class="number">222.2</span> <span class="number">47.4%</span> <span class="number">1.2%</span>;</span><br><span class="line">    <span class="attr">--secondary</span>: <span class="number">222.2</span> <span class="number">47.4%</span> <span class="number">11.2%</span>;</span><br><span class="line">    <span class="attr">--secondary-foreground</span>: <span class="number">210</span> <span class="number">40%</span> <span class="number">98%</span>;</span><br><span class="line">    <span class="attr">--destructive</span>: <span class="number">0</span> <span class="number">63%</span> <span class="number">31%</span>;</span><br><span class="line">    <span class="attr">--destructive-foreground</span>: <span class="number">210</span> <span class="number">40%</span> <span class="number">98%</span>;</span><br><span class="line">    <span class="attr">--ring</span>: <span class="number">216</span> <span class="number">34%</span> <span class="number">17%</span>;</span><br><span class="line">    <span class="attr">--radius</span>: <span class="number">0.5rem</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@layer</span> base &#123;</span><br><span class="line">  * &#123;</span><br><span class="line">    <span class="keyword">@apply</span> border-border;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="selector-tag">body</span> &#123;</span><br><span class="line">    <span class="keyword">@apply</span> font-sans antialiased bg-background text-foreground;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="导入shadcn-x2F-ui"><a href="#导入shadcn-x2F-ui" class="headerlink" title="导入shadcn&#x2F;ui"></a>导入shadcn&#x2F;ui</h3><p><a target="_blank" rel="noopener" href="https://ui.shadcn.com/blocks">Blocks</a>是shadcn&#x2F;ui的组件库，提供了一套可定制的UI组件，包括按钮、输入框、卡片、表格等。我们可以通过Blocks来快速构建用户界面，并使用shadcn&#x2F;ui提供的样式和主题定制来创建具有一致外观和感觉的界面。</p>
+<p><img src="/2025/02/23/cross-platform-desktop-apps-with-electron/Building-Blocks-for-the-Web.png" alt="Blocks"></p>
+<p>选择组件复制指令执行，比如导入 login 组件，复制指令 <code>npx shadcn@latest add login-01</code> 执行，此操作会在项目根目录下创建一个名为 <code>components.json</code> 的配置文件，并导入相关的shadcn&#x2F;ui组件。</p>
+<p><img src="/2025/02/23/cross-platform-desktop-apps-with-electron/copy-login.png" alt="Copy"></p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;style&quot;</span><span class="punctuation">:</span> <span class="string">&quot;new-york&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;tailwind&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;config&quot;</span><span class="punctuation">:</span> <span class="string">&quot;tailwind.config.js&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;css&quot;</span><span class="punctuation">:</span> <span class="string">&quot;src/renderer/src/assets/base.css&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;baseColor&quot;</span><span class="punctuation">:</span> <span class="string">&quot;zinc&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;cssVariables&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;prefix&quot;</span><span class="punctuation">:</span> <span class="string">&quot;&quot;</span></span><br><span class="line">  <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;rsc&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">false</span></span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;aliases&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;utils&quot;</span><span class="punctuation">:</span> <span class="string">&quot;@/lib/utils&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;components&quot;</span><span class="punctuation">:</span> <span class="string">&quot;@/components&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;lib&quot;</span><span class="punctuation">:</span> <span class="string">&quot;@/lib&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;hooks&quot;</span><span class="punctuation">:</span> <span class="string">&quot;@/lib/hooks&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;ui&quot;</span><span class="punctuation">:</span> <span class="string">&quot;@/components/ui&quot;</span></span><br><span class="line">  <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;iconLibrary&quot;</span><span class="punctuation">:</span> <span class="string">&quot;lucide&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="修改App-tsx，加入react路由"><a href="#修改App-tsx，加入react路由" class="headerlink" title="修改App.tsx，加入react路由"></a>修改App.tsx，加入react路由</h3><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">BrowserRouter</span> <span class="keyword">as</span> <span class="title class_">Router</span>, <span class="title class_">Route</span>, <span class="title class_">Routes</span>, <span class="title class_">Navigate</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;react-router-dom&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="title class_">Dashboard</span> <span class="keyword">from</span> <span class="string">&#x27;./app/dashboard/page&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="title class_">Login</span> <span class="keyword">from</span> <span class="string">&#x27;./app/login/page&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">App</span>(<span class="params"></span>): <span class="variable constant_">JSX</span>.<span class="property">Element</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    <span class="language-xml"><span class="tag">&lt;<span class="name">Router</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;<span class="name">Routes</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;<span class="name">Route</span> <span class="attr">path</span>=<span class="string">&quot;/&quot;</span> <span class="attr">element</span>=<span class="string">&#123;</span>&lt;<span class="attr">Navigate</span> <span class="attr">to</span>=<span class="string">&quot;/login&quot;</span> <span class="attr">replace</span> /&gt;</span>&#125; /&gt;</span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;<span class="name">Route</span> <span class="attr">path</span>=<span class="string">&quot;/login&quot;</span> <span class="attr">element</span>=<span class="string">&#123;</span>&lt;<span class="attr">Login</span> /&gt;</span>&#125; /&gt;</span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;<span class="name">Route</span> <span class="attr">path</span>=<span class="string">&quot;/dashboard&quot;</span> <span class="attr">element</span>=<span class="string">&#123;</span>&lt;<span class="attr">Dashboard</span> /&gt;</span>&#125; /&gt;</span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;/<span class="name">Routes</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;/<span class="name">Router</span>&gt;</span></span></span><br><span class="line">  )</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="title class_">App</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="运行与调试"><a href="#运行与调试" class="headerlink" title="运行与调试"></a>运行与调试</h3><p>在终端执行 <code>yarn dev</code>，刹那间，你的首个 Electron 桌面应用将如破茧之蝶，带着你的创意与期望，轻盈地展现在眼前，开启一场属于你的技术传奇。在运行过程中，密切关注应用的表现，若发现问题，及时回到代码中进行调试。你可以利用浏览器的开发者工具，如 Chrome DevTools，在 Electron 应用中也能开启类似的调试模式，方便查找 JavaScript 代码、CSS 样式等方面的问题。</p>
+<p><img src="/2025/02/23/cross-platform-desktop-apps-with-electron/login.png" alt="login"><br><img src="/2025/02/23/cross-platform-desktop-apps-with-electron/dashboard.png" alt="dashboard"></p>
+<h1 id="相关链接"><a href="#相关链接" class="headerlink" title="相关链接"></a>相关链接</h1><ol>
+<li><a target="_blank" rel="noopener" href="https://ui.shadcn.com/">https://ui.shadcn.com/</a></li>
+<li><a target="_blank" rel="noopener" href="https://cn.electron-vite.org/">https://cn.electron-vite.org/</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/huangmingji/shadcn-electron-app">https://github.com/huangmingji/shadcn-electron-app</a></li>
+</ol>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://stargazer.tech">黄明基</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://stargazer.tech/2025/02/23/cross-platform-desktop-apps-with-electron/">https://stargazer.tech/2025/02/23/cross-platform-desktop-apps-with-electron/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://stargazer.tech" target="_blank">Stargazer</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/NodeJS/">NodeJS</a><a class="post-meta__tags" href="/tags/Typescript/">Typescript</a><a class="post-meta__tags" href="/tags/Electron/">Electron</a><a class="post-meta__tags" href="/tags/%E8%B7%A8%E5%B9%B3%E5%8F%B0%E6%A1%8C%E9%9D%A2%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/">跨平台桌面应用开发</a><a class="post-meta__tags" href="/tags/shadcn-ui/">shadcn/ui</a></div><div class="post_share"><div class="social-share" data-image="/2025/02/23/cross-platform-desktop-apps-with-electron/cover.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i> 打赏</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/img/wechat.jpg" target="_blank"><img class="post-qr-code-img" src="/img/wechat.jpg" alt="wechat"/></a><div class="post-qr-code-desc">wechat</div></li><li class="reward-item"><a href="/img/alipay.jpg" target="_blank"><img class="post-qr-code-img" src="/img/alipay.jpg" alt="alipay"/></a><div class="post-qr-code-desc">alipay</div></li></ul></div></div><div class="ads-wrap"><a class="adspost" style="display:block; width:786px;" target="_blank" rel="noopener" href="https://curl.qcloud.com/mkDVfqM6"><img src="/img/ads/970_250.png" style="width:786px;" alt=""></a></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2024/12/05/build-your-dotnet-aspire-solution/" title="构建你的.NET Aspire解决方案"><img class="cover" src="/2024/12/05/build-your-dotnet-aspire-solution/csharp-bot.svg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">构建你的.NET Aspire解决方案</div></div></a></div></nav><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="gitalk-container"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/favicon.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">黄明基</div><div class="author-info__description">人间总有一两风，填我十万八千梦。</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">9</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">20</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">6</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/huangmingji"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/huangmingji" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:huangmingji@stargazer.tech" target="_blank" title="Email"><i class="fas fa-envelope"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">感谢您的来访和阅读，如果觉得博客对您有帮助，欢迎收藏本网站，关注我，一起交流学习。<br />您也可以用微信扫一扫下面的二维码关注我的公众号，第一时间接收网站更新信息。<br /><img src='/img/wechat_qrcode.jpg' style='width:241px;'><br/>如果您需要购买云服务，请点击本站的腾讯云推广链接进行购买，我也能有一份收入。<br />如果您需要购买阿里云服务，请通过该链接<a target="_blank" rel="noopener" href='https://www.aliyun.com/minisite/goods?userCode=2ed6bdqv'>云小站</a>购买。<br />如果经济上不支持，您也可以请我喝杯咖啡，非常感谢。<br />wechat:<img src='/img/wechat.jpg' style='width:241px;' /><br />alipay:<img src='/img/alipay.jpg' style='width:241px;' /></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Electron-%E6%A1%86%E6%9E%B6%E7%AE%80%E4%BB%8B"><span class="toc-number">1.</span> <span class="toc-text">Electron 框架简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#shadcn-x2F-ui-%E7%AE%80%E4%BB%8B"><span class="toc-number">2.</span> <span class="toc-text">shadcn&#x2F;ui 简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%BA%E4%BA%8E-Electron-%E5%92%8C-shadcn-x2F-ui-%E7%9A%84%E5%BC%80%E5%8F%91%E8%BF%87%E7%A8%8B"><span class="toc-number">3.</span> <span class="toc-text">基于 Electron 和 shadcn&#x2F;ui 的开发过程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="toc-number">3.1.</span> <span class="toc-text">开发环境搭建</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E9%A1%B9%E7%9B%AE"><span class="toc-number">3.2.</span> <span class="toc-text">创建项目</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AF%BC%E5%85%A5shadcn-x2F-ui"><span class="toc-number">3.3.</span> <span class="toc-text">导入shadcn&#x2F;ui</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9App-tsx%EF%BC%8C%E5%8A%A0%E5%85%A5react%E8%B7%AF%E7%94%B1"><span class="toc-number">3.4.</span> <span class="toc-text">修改App.tsx，加入react路由</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%90%E8%A1%8C%E4%B8%8E%E8%B0%83%E8%AF%95"><span class="toc-number">3.5.</span> <span class="toc-text">运行与调试</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%9B%B8%E5%85%B3%E9%93%BE%E6%8E%A5"><span class="toc-number"></span> <span class="toc-text">相关链接</span></a></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2025/02/23/cross-platform-desktop-apps-with-electron/" title="跨平台桌面应用开发：解锁 Electron 与 shadcn/ui 的潜力"><img src="/2025/02/23/cross-platform-desktop-apps-with-electron/cover.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="跨平台桌面应用开发：解锁 Electron 与 shadcn/ui 的潜力"/></a><div class="content"><a class="title" href="/2025/02/23/cross-platform-desktop-apps-with-electron/" title="跨平台桌面应用开发：解锁 Electron 与 shadcn/ui 的潜力">跨平台桌面应用开发：解锁 Electron 与 shadcn/ui 的潜力</a><time datetime="2025-02-23T14:44:00.000Z" title="发表于 2025-02-23 22:44:00">2025-02-23</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/12/05/build-your-dotnet-aspire-solution/" title="构建你的.NET Aspire解决方案"><img src="/2024/12/05/build-your-dotnet-aspire-solution/csharp-bot.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="构建你的.NET Aspire解决方案"/></a><div class="content"><a class="title" href="/2024/12/05/build-your-dotnet-aspire-solution/" title="构建你的.NET Aspire解决方案">构建你的.NET Aspire解决方案</a><time datetime="2024-12-05T04:00:00.000Z" title="发表于 2024-12-05 12:00:00">2024-12-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/11/25/use-YARP-for-load-balancing/" title="使用YARP来实现负载均衡"><img src="/2024/11/25/use-YARP-for-load-balancing/cover.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="使用YARP来实现负载均衡"/></a><div class="content"><a class="title" href="/2024/11/25/use-YARP-for-load-balancing/" title="使用YARP来实现负载均衡">使用YARP来实现负载均衡</a><time datetime="2024-11-25T11:00:00.000Z" title="发表于 2024-11-25 19:00:00">2024-11-25</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/06/02/how-to-implement-restful-api-service-with-nodejs-and-express/" title="如何使用Node.js、TypeScript和Express实现RESTful API服务">如何使用Node.js、TypeScript和Express实现RESTful API服务</a><time datetime="2024-06-02T14:23:00.000Z" title="发表于 2024-06-02 22:23:00">2024-06-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/11/21/Build-cross-platform-desktop-applications-using-net5-Blazor-and-ElectronNET/" title="使用.NET5、Blazor和Electron.NET构建跨平台桌面应用"><img src="/2021/11/21/Build-cross-platform-desktop-applications-using-net5-Blazor-and-ElectronNET/cover.jpeg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="使用.NET5、Blazor和Electron.NET构建跨平台桌面应用"/></a><div class="content"><a class="title" href="/2021/11/21/Build-cross-platform-desktop-applications-using-net5-Blazor-and-ElectronNET/" title="使用.NET5、Blazor和Electron.NET构建跨平台桌面应用">使用.NET5、Blazor和Electron.NET构建跨平台桌面应用</a><time datetime="2021-11-21T08:26:00.000Z" title="发表于 2021-11-21 16:26:00">2021-11-21</time></div></div></div></div><div class="card-widget ads-wrap"><a class="adspost" style="display:block; width:242px;" target="_blank" rel="noopener" href="https://curl.qcloud.com/TUP2MPWI"><img src="/img/ads/rhino-design-500x500.png" style="width:242px;" alt=""></a></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2025 By 黄明基</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaidWrap = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaidWrap.length) {
+    window.runMermaid = () => {
+      window.loadMermaid = true
+      const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+      Array.from($mermaidWrap).forEach((item, index) => {
+        const mermaidSrc = item.firstElementChild
+        const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+        const mermaidID = 'mermaid-' + index
+        const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+        mermaid.mermaidAPI.render(mermaidID, mermaidDefinition, (svgCode) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svgCode)
+        })
+      })
+    }
+
+    const loadMermaid = () => {
+      window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js').then(runMermaid)
+    }
+
+    window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+  }
+})()</script><script>function loadGitalk () {
+  function initGitalk () {
+    var gitalk = new Gitalk(Object.assign({
+      clientID: 'e967a0a9c5fad17b2204',
+      clientSecret: '5ae33a65a9ccc0ea81d1d35beac8532e3af158c7',
+      repo: 'huangmingji.github.io',
+      owner: 'huangmingji',
+      admin: ['huangmingji'],
+      id: '918e4741bed7054d54d01b7e9881bd85',
+      updateCountCallback: commentCount
+    },null))
+
+    gitalk.render('gitalk-container')
+  }
+
+  if (typeof Gitalk === 'function') initGitalk()
+  else {
+    getCSS('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css')
+    getScript('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js').then(initGitalk)
+  }
+}
+
+function commentCount(n){
+  let isCommentCount = document.querySelector('#post-meta .gitalk-comment-count')
+  if (isCommentCount) {
+    isCommentCount.innerHTML= n
+  }
+}
+
+if ('Gitalk' === 'Gitalk' || !true) {
+  if (true) btf.loadComment(document.getElementById('gitalk-container'), loadGitalk)
+  else loadGitalk()
+} else {
+  function loadOtherComment () {
+    loadGitalk()
+  }
+}</script></div><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/fireworks.min.js"></script><script defer="defer" id="fluttering_ribbon" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-fluttering-ribbon.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
