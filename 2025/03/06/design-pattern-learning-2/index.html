@@ -1,0 +1,261 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"><title>设计模式学习：2、状态模式实现订单状态流转 | Stargazer</title><meta name="author" content="黄明基"><meta name="copyright" content="黄明基"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="支付场景中的状态流转在开发电商支付模块时，我们常遇到这样的状态流转需求：  订单需要经历 待支付 → 支付中 → 支付成功&#x2F;失败 → 退款处理 的完整生命周期。 不同状态下可执行的操作不同（例如只有支付成功才能退款）。 状态转换需要触发附加操作（支付成功要发通知、更新库存）。  传统的 if-else 或 switch 实现方式会导致：  代码臃肿，维护困难 状态转换逻辑分散 新增状态需要修改大量">
+<meta property="og:type" content="article">
+<meta property="og:title" content="设计模式学习：2、状态模式实现订单状态流转">
+<meta property="og:url" content="https://stargazer.tech/2025/03/06/design-pattern-learning-2/index.html">
+<meta property="og:site_name" content="Stargazer">
+<meta property="og:description" content="支付场景中的状态流转在开发电商支付模块时，我们常遇到这样的状态流转需求：  订单需要经历 待支付 → 支付中 → 支付成功&#x2F;失败 → 退款处理 的完整生命周期。 不同状态下可执行的操作不同（例如只有支付成功才能退款）。 状态转换需要触发附加操作（支付成功要发通知、更新库存）。  传统的 if-else 或 switch 实现方式会导致：  代码臃肿，维护困难 状态转换逻辑分散 新增状态需要修改大量">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://stargazer.tech/2025/03/06/design-pattern-learning-2/csharp-bot.svg">
+<meta property="article:published_time" content="2025-03-05T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-03-05T17:07:31.058Z">
+<meta property="article:author" content="黄明基">
+<meta property="article:tag" content="ASP.NET">
+<meta property="article:tag" content="Payment">
+<meta property="article:tag" content="支付系统">
+<meta property="article:tag" content="设计模式">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://stargazer.tech/2025/03/06/design-pattern-learning-2/csharp-bot.svg"><link rel="shortcut icon" href="/img/favicon.jpg"><link rel="canonical" href="https://stargazer.tech/2025/03/06/design-pattern-learning-2/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//hm.baidu.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?bdf34ae32c1ab2aff8b8f274d4f0ecd5";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '设计模式学习：2、状态模式实现订单状态流转',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-03-06 01:07:31'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = url => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      link.onload = () => resolve()
+      link.onerror = () => reject()
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 5.4.2"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/favicon.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">11</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">23</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">6</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="not-top-img fixed" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Stargazer"><span class="site-name">Stargazer</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">设计模式学习：2、状态模式实现订单状态流转</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-03-05T16:00:00.000Z" title="发表于 2025-03-06 00:00:00">2025-03-06</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-03-05T17:07:31.058Z" title="更新于 2025-03-06 01:07:31">2025-03-06</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/ASP-NET/">ASP.NET</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="设计模式学习：2、状态模式实现订单状态流转"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="post-content" id="article-container"><h1 id="支付场景中的状态流转"><a href="#支付场景中的状态流转" class="headerlink" title="支付场景中的状态流转"></a>支付场景中的状态流转</h1><p>在开发电商支付模块时，我们常遇到这样的状态流转需求：</p>
+<ul>
+<li>订单需要经历 <code>待支付</code> → <code>支付中</code> → <code>支付成功/失败</code> → <code>退款处理</code> 的完整生命周期。</li>
+<li>不同状态下可执行的操作不同（例如只有支付成功才能退款）。</li>
+<li>状态转换需要触发附加操作（支付成功要发通知、更新库存）。</li>
+</ul>
+<p>传统的 <code>if-else</code> 或 <code>switch</code> 实现方式会导致：</p>
+<ul>
+<li>代码臃肿，维护困难</li>
+<li>状态转换逻辑分散</li>
+<li>新增状态需要修改大量现有代码</li>
+</ul>
+<p>此时，状态模式（State Pattern）是这些问题的最佳解决方案。  </p>
+<h1 id="状态模式核心思想"><a href="#状态模式核心思想" class="headerlink" title="状态模式核心思想"></a>状态模式核心思想</h1><p>通过将状态抽象为独立类，实现两大关键特性： </p>
+<ol>
+<li>行为状态化 ：不同状态下相同的操作产生不同结果 </li>
+<li>转换自动化 ：状态对象自行决定下一个状态</li>
+</ol>
+<h1 id="状态模式实现"><a href="#状态模式实现" class="headerlink" title="状态模式实现"></a>状态模式实现</h1><ol>
+<li><p>状态接口设计  </p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 订单状态抽象接口</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title">IOrderState</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Process</span>(<span class="params">OrderContext context</span>)</span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Cancel</span>(<span class="params">OrderContext context</span>)</span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Refund</span>(<span class="params">OrderContext context</span>)</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 订单上下文（维护当前状态）</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">OrderContext</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">private</span> IOrderState _currentState;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">string</span> OrderId &#123; <span class="keyword">get</span>; &#125; = Guid.NewGuid().ToString();</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">OrderContext</span>(<span class="params">IOrderState initialState</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        TransitionTo(initialState);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">TransitionTo</span>(<span class="params">IOrderState state</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(<span class="string">$&quot;订单状态变更：<span class="subst">&#123;_currentState?.GetType().Name&#125;</span> → <span class="subst">&#123;state.GetType().Name&#125;</span>&quot;</span>);</span><br><span class="line">        _currentState = state;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">ProcessPayment</span>()</span> =&gt; _currentState.Process(<span class="keyword">this</span>);</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">CancelOrder</span>()</span> =&gt; _currentState.Cancel(<span class="keyword">this</span>);</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">RequestRefund</span>()</span> =&gt; _currentState.Refund(<span class="keyword">this</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>具体状态类实现<br>待支付状态：  </p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">PendingState</span> : <span class="title">IOrderState</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Process</span>(<span class="params">OrderContext context</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(<span class="string">&quot;开始支付处理...&quot;</span>);</span><br><span class="line">        <span class="comment">// 调用支付网关接口</span></span><br><span class="line">        context.TransitionTo(<span class="keyword">new</span> ProcessingState());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Cancel</span>(<span class="params">OrderContext context</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(<span class="string">&quot;订单已取消&quot;</span>);</span><br><span class="line">        context.TransitionTo(<span class="keyword">new</span> CanceledState());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Refund</span>(<span class="params">OrderContext context</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(<span class="string">&quot;待支付订单不能退款&quot;</span>);</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> InvalidOperationException(<span class="string">&quot;待支付订单不能退款&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>支付中状态：  </p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">ProcessingState</span> : <span class="title">IOrderState</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Process</span>(<span class="params">OrderContext context</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(<span class="string">&quot;支付处理中...&quot;</span>);</span><br><span class="line">        Console.WriteLine(<span class="string">&quot;支付成功，更新库存...&quot;</span>);</span><br><span class="line">        context.TransitionTo(<span class="keyword">new</span> PaidState());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Cancel</span>(<span class="params">OrderContext context</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(<span class="string">&quot;支付处理中，不可取消订单...&quot;</span>);</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> InvalidOperationException(<span class="string">&quot;支付处理中，不可取消订单...&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Refund</span>(<span class="params">OrderContext context</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(<span class="string">&quot;支付未完成不能退款&quot;</span>);</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> InvalidOperationException(<span class="string">&quot;支付未完成不能退款&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>支付成功状态:  </p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">PaidState</span> : <span class="title">IOrderState</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Process</span>(<span class="params">OrderContext context</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(<span class="string">&quot;订单已完成支付&quot;</span>);</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> InvalidOperationException(<span class="string">&quot;订单已完成支付&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Cancel</span>(<span class="params">OrderContext context</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(<span class="string">&quot;已支付订单需走退款流程&quot;</span>);</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> InvalidOperationException(<span class="string">&quot;已支付订单需走退款流程&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Refund</span>(<span class="params">OrderContext context</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(<span class="string">&quot;发起退款申请...&quot;</span>);</span><br><span class="line">        <span class="comment">// 调用退款接口</span></span><br><span class="line">        context.TransitionTo(<span class="keyword">new</span> RefundingState());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>退款中状态：  </p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">RefundingState</span> : <span class="title">IOrderState</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Process</span>(<span class="params">OrderContext context</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(<span class="string">&quot;退款处理中...&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Cancel</span>(<span class="params">OrderContext context</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(<span class="string">&quot;退款处理中，不可取消订单...&quot;</span>);</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> InvalidOperationException(<span class="string">&quot;退款处理中，不可取消订单...&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Refund</span>(<span class="params">OrderContext context</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(<span class="string">&quot;退款处理中，不可重复退款&quot;</span>);</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> InvalidOperationException(<span class="string">&quot;退款处理中，不可重复退款&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>订单取消状态：  </p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">CanceledState</span> : <span class="title">IOrderState</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Process</span>(<span class="params">OrderContext context</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(<span class="string">&quot;订单已取消，无需支付&quot;</span>);</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> InvalidOperationException(<span class="string">&quot;订单已取消，无需支付&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Cancel</span>(<span class="params">OrderContext context</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(<span class="string">&quot;订单已取消，无需取消&quot;</span>);</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> InvalidOperationException(<span class="string">&quot;订单已取消，无需取消&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Refund</span>(<span class="params">OrderContext context</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(<span class="string">&quot;订单已取消，无需退款&quot;</span>);</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> InvalidOperationException(<span class="string">&quot;订单已取消，无需退款&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h1 id="完整状态流转示例"><a href="#完整状态流转示例" class="headerlink" title="完整状态流转示例"></a>完整状态流转示例</h1><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> order = <span class="keyword">new</span> OrderContext(<span class="keyword">new</span> PendingState());</span><br><span class="line"></span><br><span class="line">order.ProcessPayment();  <span class="comment">// 进入ProcessingState</span></span><br><span class="line">order.RequestRefund();   <span class="comment">// 输出警告信息</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 模拟支付成功回调</span></span><br><span class="line">order.TransitionTo(<span class="keyword">new</span> PaidState());</span><br><span class="line">order.RequestRefund();   <span class="comment">// 进入RefundingState</span></span><br></pre></td></tr></table></figure></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://stargazer.tech">黄明基</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://stargazer.tech/2025/03/06/design-pattern-learning-2/">https://stargazer.tech/2025/03/06/design-pattern-learning-2/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://stargazer.tech" target="_blank">Stargazer</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/ASP-NET/">ASP.NET</a><a class="post-meta__tags" href="/tags/Payment/">Payment</a><a class="post-meta__tags" href="/tags/%E6%94%AF%E4%BB%98%E7%B3%BB%E7%BB%9F/">支付系统</a><a class="post-meta__tags" href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">设计模式</a></div><div class="post_share"><div class="social-share" data-image="/2025/03/06/design-pattern-learning-2/csharp-bot.svg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i> 打赏</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/img/wechat.jpg" target="_blank"><img class="post-qr-code-img" src="/img/wechat.jpg" alt="wechat"/></a><div class="post-qr-code-desc">wechat</div></li><li class="reward-item"><a href="/img/alipay.jpg" target="_blank"><img class="post-qr-code-img" src="/img/alipay.jpg" alt="alipay"/></a><div class="post-qr-code-desc">alipay</div></li></ul></div></div><div class="ads-wrap"><a class="adspost" style="display:block; width:786px;" target="_blank" rel="noopener" href="https://curl.qcloud.com/mkDVfqM6"><img src="/img/ads/970_250.png" style="width:786px;" alt=""></a></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2025/03/05/design-pattern-learning-1/" title="设计模式学习：1、在支付系统中的实战应用"><img class="cover" src="/2025/03/05/design-pattern-learning-1/csharp-bot.svg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">设计模式学习：1、在支付系统中的实战应用</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2025/03/05/design-pattern-learning-1/" title="设计模式学习：1、在支付系统中的实战应用"><img class="cover" src="/2025/03/05/design-pattern-learning-1/csharp-bot.svg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-03-05</div><div class="title">设计模式学习：1、在支付系统中的实战应用</div></div></a></div><div><a href="/2024/11/25/use-YARP-for-load-balancing/" title="使用YARP来实现负载均衡"><img class="cover" src="/2024/11/25/use-YARP-for-load-balancing/cover.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-25</div><div class="title">使用YARP来实现负载均衡</div></div></a></div><div><a href="/2024/12/05/build-your-dotnet-aspire-solution/" title="构建你的.NET Aspire解决方案"><img class="cover" src="/2024/12/05/build-your-dotnet-aspire-solution/csharp-bot.svg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-12-05</div><div class="title">构建你的.NET Aspire解决方案</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="gitalk-container"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/favicon.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">黄明基</div><div class="author-info__description">人间总有一两风，填我十万八千梦。</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">11</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">23</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">6</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/huangmingji"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/huangmingji" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:huangmingji@stargazer.tech" target="_blank" title="Email"><i class="fas fa-envelope"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">感谢您的来访和阅读，如果觉得博客对您有帮助，欢迎收藏本网站，关注我，一起交流学习。<br />您也可以用微信扫一扫下面的二维码关注我的公众号，第一时间接收网站更新信息。<br /><img src='/img/wechat_qrcode.jpg' style='width:241px;'><br/>如果您需要购买云服务，请点击本站的腾讯云推广链接进行购买，我也能有一份收入。<br />如果您需要购买阿里云服务，请通过该链接<a target="_blank" rel="noopener" href='https://www.aliyun.com/minisite/goods?userCode=2ed6bdqv'>云小站</a>购买。<br />如果经济上不支持，您也可以请我喝杯咖啡，非常感谢。<br />wechat:<img src='/img/wechat.jpg' style='width:241px;' /><br />alipay:<img src='/img/alipay.jpg' style='width:241px;' /></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%94%AF%E4%BB%98%E5%9C%BA%E6%99%AF%E4%B8%AD%E7%9A%84%E7%8A%B6%E6%80%81%E6%B5%81%E8%BD%AC"><span class="toc-number">1.</span> <span class="toc-text">支付场景中的状态流转</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%8A%B6%E6%80%81%E6%A8%A1%E5%BC%8F%E6%A0%B8%E5%BF%83%E6%80%9D%E6%83%B3"><span class="toc-number">2.</span> <span class="toc-text">状态模式核心思想</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%8A%B6%E6%80%81%E6%A8%A1%E5%BC%8F%E5%AE%9E%E7%8E%B0"><span class="toc-number">3.</span> <span class="toc-text">状态模式实现</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%AE%8C%E6%95%B4%E7%8A%B6%E6%80%81%E6%B5%81%E8%BD%AC%E7%A4%BA%E4%BE%8B"><span class="toc-number">4.</span> <span class="toc-text">完整状态流转示例</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2025/03/06/design-pattern-learning-2/" title="设计模式学习：2、状态模式实现订单状态流转"><img src="/2025/03/06/design-pattern-learning-2/csharp-bot.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="设计模式学习：2、状态模式实现订单状态流转"/></a><div class="content"><a class="title" href="/2025/03/06/design-pattern-learning-2/" title="设计模式学习：2、状态模式实现订单状态流转">设计模式学习：2、状态模式实现订单状态流转</a><time datetime="2025-03-05T16:00:00.000Z" title="发表于 2025-03-06 00:00:00">2025-03-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/03/05/design-pattern-learning-1/" title="设计模式学习：1、在支付系统中的实战应用"><img src="/2025/03/05/design-pattern-learning-1/csharp-bot.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="设计模式学习：1、在支付系统中的实战应用"/></a><div class="content"><a class="title" href="/2025/03/05/design-pattern-learning-1/" title="设计模式学习：1、在支付系统中的实战应用">设计模式学习：1、在支付系统中的实战应用</a><time datetime="2025-03-04T16:00:00.000Z" title="发表于 2025-03-05 00:00:00">2025-03-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/02/23/cross-platform-desktop-apps-with-electron/" title="跨平台桌面应用开发：解锁 Electron 与 shadcn/ui 的潜力"><img src="/2025/02/23/cross-platform-desktop-apps-with-electron/cover.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="跨平台桌面应用开发：解锁 Electron 与 shadcn/ui 的潜力"/></a><div class="content"><a class="title" href="/2025/02/23/cross-platform-desktop-apps-with-electron/" title="跨平台桌面应用开发：解锁 Electron 与 shadcn/ui 的潜力">跨平台桌面应用开发：解锁 Electron 与 shadcn/ui 的潜力</a><time datetime="2025-02-23T14:44:00.000Z" title="发表于 2025-02-23 22:44:00">2025-02-23</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/12/05/build-your-dotnet-aspire-solution/" title="构建你的.NET Aspire解决方案"><img src="/2024/12/05/build-your-dotnet-aspire-solution/csharp-bot.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="构建你的.NET Aspire解决方案"/></a><div class="content"><a class="title" href="/2024/12/05/build-your-dotnet-aspire-solution/" title="构建你的.NET Aspire解决方案">构建你的.NET Aspire解决方案</a><time datetime="2024-12-05T04:00:00.000Z" title="发表于 2024-12-05 12:00:00">2024-12-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/11/25/use-YARP-for-load-balancing/" title="使用YARP来实现负载均衡"><img src="/2024/11/25/use-YARP-for-load-balancing/cover.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="使用YARP来实现负载均衡"/></a><div class="content"><a class="title" href="/2024/11/25/use-YARP-for-load-balancing/" title="使用YARP来实现负载均衡">使用YARP来实现负载均衡</a><time datetime="2024-11-25T11:00:00.000Z" title="发表于 2024-11-25 19:00:00">2024-11-25</time></div></div></div></div><div class="card-widget ads-wrap"><a class="adspost" style="display:block; width:242px;" target="_blank" rel="noopener" href="https://curl.qcloud.com/TUP2MPWI"><img src="/img/ads/rhino-design-500x500.png" style="width:242px;" alt=""></a></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2025 By 黄明基</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaidWrap = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaidWrap.length) {
+    window.runMermaid = () => {
+      window.loadMermaid = true
+      const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+      Array.from($mermaidWrap).forEach((item, index) => {
+        const mermaidSrc = item.firstElementChild
+        const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+        const mermaidID = 'mermaid-' + index
+        const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+        mermaid.mermaidAPI.render(mermaidID, mermaidDefinition, (svgCode) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svgCode)
+        })
+      })
+    }
+
+    const loadMermaid = () => {
+      window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js').then(runMermaid)
+    }
+
+    window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+  }
+})()</script><script>function loadGitalk () {
+  function initGitalk () {
+    var gitalk = new Gitalk(Object.assign({
+      clientID: 'e967a0a9c5fad17b2204',
+      clientSecret: '5ae33a65a9ccc0ea81d1d35beac8532e3af158c7',
+      repo: 'huangmingji.github.io',
+      owner: 'huangmingji',
+      admin: ['huangmingji'],
+      id: '5e92ca587ef49ae8e72c95cb3014ef88',
+      updateCountCallback: commentCount
+    },null))
+
+    gitalk.render('gitalk-container')
+  }
+
+  if (typeof Gitalk === 'function') initGitalk()
+  else {
+    getCSS('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css')
+    getScript('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js').then(initGitalk)
+  }
+}
+
+function commentCount(n){
+  let isCommentCount = document.querySelector('#post-meta .gitalk-comment-count')
+  if (isCommentCount) {
+    isCommentCount.innerHTML= n
+  }
+}
+
+if ('Gitalk' === 'Gitalk' || !true) {
+  if (true) btf.loadComment(document.getElementById('gitalk-container'), loadGitalk)
+  else loadGitalk()
+} else {
+  function loadOtherComment () {
+    loadGitalk()
+  }
+}</script></div><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/fireworks.min.js"></script><script defer="defer" id="fluttering_ribbon" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-fluttering-ribbon.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
